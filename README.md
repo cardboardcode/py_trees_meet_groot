@@ -15,11 +15,11 @@ The main purpose of this module is to load an XML file generated with Groot and 
     </tr>
 </table>
 
-## Groot supported features 
+## Groot Supported Features 
 
 BehaviorTree.CPP and py_trees use different control sequences, decorators and tree leaves. This section explains the mapping between one and the other in order to use Groot in py_trees.
 
-### Control nodes to Composite nodes:
+### Control Nodes to Composite Nodes:
 
 | Groot | py_trees |
 |-------|----------|
@@ -52,7 +52,7 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackboard`, `FailureIsRunning`, `RunningIsSuccess`... or newly created by the user, must be added in the `decorators` diccionare and pass to the `load` function to be used.
 
 
-### Actions and Conditions to Behaviors
+### Actions & Conditions to Behaviors
 
 | Groot | py_trees |
 |-------|----------|
@@ -65,7 +65,7 @@ Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackbo
 
 All manually defined Actions and Conditions in Groot have to be defined as py_trees `behaviors` and added into the `behaviors` list in function `load` to be used.
 
-## Unsupported elements
+## Unsupported Elements
 
 The following elements are unsupported right now:
 
