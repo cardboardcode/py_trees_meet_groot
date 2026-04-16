@@ -2,7 +2,7 @@
 
 [Groot](https://github.com/BehaviorTree/Groot) is a Graphical Editor, written in C++ and Qt, to create BehaviorTrees. It is only compatible with [BehaviorTree.CPP](https://github.com/BehaviorTree/BehaviorTree.CPP). This module is an attempt to use Groot to generate trees using [py_trees](https://github.com/splintered-reality/py_trees) instead of BehaviorTree.CPP.
 
-The main purpose of this module is to load an XML file generated with Groot and transform it into a valif py_trees behavior tree. Execution of py_trees behavior trees is not connected to Groot for the moment.
+The main purpose of this module is to load an XML file generated with Groot and transform it into a valid `py_trees` behavior tree. Execution of `py_trees` behavior trees is not connected to Groot for the moment.
 
 <table>
     <tr>
