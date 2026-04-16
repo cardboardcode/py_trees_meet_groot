@@ -1,13 +1,16 @@
-<?xml version="1.0"?>
-<root main_tree_to_execute="BehaviorTree">
-    <!-- ////////// -->
-    <BehaviorTree ID="BehaviorTree">
-        <Sequence>
-            <SetBlackboard output_key="wp" value="-2"/>
-            <AlwaysSuccess/>
-        </Sequence>
-    </BehaviorTree>
-    <!-- ////////// -->
-    <TreeNodesModel/>
-    <!-- ////////// -->
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Sequence>
+      <SetBlackboard value="-2"
+                     output_key="wp"/>
+      <AlwaysSuccess/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel/>
+
 </root>
