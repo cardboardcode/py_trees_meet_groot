@@ -1,4 +1,4 @@
-# Import Groot XML files into py_trees
+# **Import Groot XML files into py_trees**
 
 [Groot](https://github.com/BehaviorTree/Groot) is a Graphical Editor, written in C++ and Qt, to create BehaviorTrees. It is only compatible with [BehaviorTree.CPP](https://github.com/BehaviorTree/BehaviorTree.CPP). This module is an attempt to use Groot to generate trees using [py_trees](https://github.com/splintered-reality/py_trees) instead of BehaviorTree.CPP.
 
@@ -15,11 +15,11 @@ The main purpose of this module is to load an XML file generated with Groot and 
     </tr>
 </table>
 
-## Groot Supported Features 
+## **Groot Supported Features **
 
 BehaviorTree.CPP and py_trees use different control sequences, decorators and tree leaves. This section explains the mapping between one and the other in order to use Groot in py_trees.
 
-### Control Nodes to Composite Nodes:
+### **Control Nodes to Composite Nodes**
 
 | Groot | py_trees |
 |-------|----------|
@@ -34,7 +34,7 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | SwitchX | not available |
 
 
-### Decorators to Decorators
+### **Decorators to Decorators**
 
 | Groot | py_trees |
 |-------|----------|
@@ -52,7 +52,7 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackboard`, `FailureIsRunning`, `RunningIsSuccess`... or newly created by the user, must be added in the `decorators` diccionare and pass to the `load` function to be used.
 
 
-### Actions & Conditions to Behaviors
+### **Actions & Conditions to Behaviors**
 
 | Groot | py_trees |
 |-------|----------|
@@ -65,7 +65,7 @@ Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackbo
 
 All manually defined Actions and Conditions in Groot have to be defined as py_trees `behaviors` and added into the `behaviors` list in function `load` to be used.
 
-## Unsupported Elements
+## **Unsupported Elements**
 
 The following elements are unsupported right now:
 
@@ -73,7 +73,7 @@ The following elements are unsupported right now:
 * Decorators with parameters 
 * Connecting the execution of py_trees to Groot 
 
-## Example
+## **Example**
 
 ```python
 import py_trees
@@ -93,3 +93,23 @@ all_decorators["one_shot"] = one_shot
 root = groot_xml.load("GROOT_XML_FILE_TO_LOAD.xml", behaviors=all_behaviors, decorators=all_decorators)
 ```
 
+## **Build From Source**
+
+1. **Create a virtual environment**:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Linux/macOS
+   venv\Scripts\activate     # On Windows
+   ```
+
+2. **Install the package in development mode** (this installs `py_trees` as a dependency):
+   ```bash
+   pip install -e .
+   ```
+
+## **Verify**
+
+**Verify the installation** by running a simple test:
+   ```bash
+   python -c "import py_trees_meet_groot; print('Successfully imported py_trees_meet_groot')"
+   ```
