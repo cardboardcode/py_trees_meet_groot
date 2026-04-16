@@ -1,7 +1,6 @@
 import operator 
 import py_trees
 import time
-import sys
 from py_trees_meet_groot import groot_xml
 
 # Define Groot Actions and COnditions ans py_trees Behaviors
@@ -16,18 +15,16 @@ check_door_close = py_trees.behaviours.CheckBlackboardVariableValue(
 move_to_door = py_trees.behaviours.Success(name="move_to_door")
 open_door = py_trees.behaviours.Failure(name="open_door")
 destroy_door = py_trees.behaviours.Success(name="destroy_door")
-cross_door = py_trees.behaviours.Success(name="explore")
+cross_door = py_trees.behaviours.Success(name="cross_door")
 all_behaviors = [check_door_close, move_to_door, open_door, destroy_door, cross_door]
-
-# Define any non-Groot decorator node
-all_decorators = {}
-one_shot = py_trees.decorators.OneShot
-all_decorators["one_shot"] = one_shot
 
 if __name__=="__main__":
     # Load Groot XML behavior tree
-    root = groot_xml.load("test1.xml", behaviors=all_behaviors, decorators=all_decorators)
-    print(py_trees.display.ascii_tree(root))
+    root = groot_xml.load("test1.xml", behaviors=all_behaviors)
+    
+    # DEBUG
+    # Visualise parsed BT Groot xml file as py_trees components.
+    # print(py_trees.display.ascii_tree(root))
     # py_trees.display.render_dot_tree(root) # render behavior tree
 
     # Play Behavior Tree

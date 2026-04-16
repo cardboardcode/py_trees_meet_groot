@@ -1,29 +1,28 @@
-<?xml version="1.0"?>
-<root main_tree_to_execute="BehaviorTree">
-    <!-- ////////// -->
-    <BehaviorTree ID="BehaviorTree">
-        <Decorator ID="one_shot">
-            <Sequence>
-                <Action ID="move_to_door"/>
-                <Fallback>
-                    <Inverter>
-                        <Condition ID="check_door_close"/>
-                    </Inverter>
-                    <Action ID="open_door"/>
-                    <Action ID="destroy_door"/>
-                </Fallback>
-                <Action ID="cross_door"/>
-            </Sequence>
-        </Decorator>
-    </BehaviorTree>
-    <!-- ////////// -->
-    <TreeNodesModel>
-        <Condition ID="check_door_close"/>
-        <Action ID="cross_door"/>
-        <Action ID="destroy_door"/>
-        <Action ID="move_to_door"/>
-        <Decorator ID="one_shot"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Sequence>
+      <Action ID="move_to_door"/>
+      <Fallback>
+        <Inverter>
+          <Condition ID="check_door_close"/>
+        </Inverter>
         <Action ID="open_door"/>
-    </TreeNodesModel>
-    <!-- ////////// -->
+        <Action ID="destroy_door"/>
+      </Fallback>
+      <Action ID="cross_door"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="check_door_close"/>
+    <Action ID="cross_door"/>
+    <Action ID="destroy_door"/>
+    <Action ID="move_to_door"/>
+    <Action ID="open_door"/>
+  </TreeNodesModel>
+
 </root>
