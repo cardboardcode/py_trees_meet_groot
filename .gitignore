@@ -131,3 +131,6 @@ dmypy.json
 
 # Others
 *.png~
+*.dot
+*.png
+*.svg

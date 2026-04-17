@@ -24,8 +24,8 @@ if __name__=="__main__":
     
     # DEBUG
     # Visualise parsed BT Groot xml file as py_trees components.
-    # print(py_trees.display.ascii_tree(root))
-    # py_trees.display.render_dot_tree(root) # render behavior tree
+    print(py_trees.display.ascii_tree(root))
+    py_trees.display.render_dot_tree(root) # render behavior tree
 
     # Play Behavior Tree
     py_trees.logging.level = py_trees.logging.Level.DEBUG
@@ -35,10 +35,11 @@ if __name__=="__main__":
         blackboard.register_key("door_close", access=py_trees.common.Access.WRITE)
         blackboard.door_close = True # Change to False to see how the behavior changes
         
-        for _ in range(5):
-            root.tick_once()
-            time.sleep(0.5)
-            print(py_trees.display.ascii_blackboard())
-            print("-------------------------------------")
+
+        root.tick_once()
+        time.sleep(0.5)
+        print(py_trees.display.ascii_blackboard())
+        print("-------------------------------------")
+
     except KeyboardInterrupt:
         pass

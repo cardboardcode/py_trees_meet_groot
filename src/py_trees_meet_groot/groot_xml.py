@@ -1,22 +1,28 @@
 from xml.dom.minidom import parse, Element
 import py_trees
+import inspect
 
 def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
     """Parse XML file into Song Object"""
     dict_bh = {}
     for bh in behaviors:
-        dict_bh[bh.name] = bh
+        if not isinstance(bh, py_trees.behaviour.Behaviour):
+            dict_bh[bh.__name__] = bh
+        else:
+            dict_bh[bh.name] = bh
     
+    print(f"dict_bh = {dict_bh}")
+
     doc = parse(xml_file_path)
     main_tree_to_execute = ""
     try:
         root = doc.getElementsByTagName("root")[0]
-        print(root)
         main_tree_to_execute = root.getAttribute("main_tree_to_execute")
-        print(main_tree_to_execute)
         behavior_trees = root.getElementsByTagName("BehaviorTree")
+
         for bht in behavior_trees:
             ret = parse_BehaviourTree(bht, dict_bh, decorators)
+        print(f"ret = {ret}")
         return ret[0]
     except Exception as e :
         print(f"Exception parsing Tree: {str(e)}")
@@ -37,7 +43,6 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             seq = py_trees.composites.Sequence(name="sequence", memory=False)
             seq.add_children(nodes)
             ret.append(seq)
-            
         elif str(e.nodeName) == "Fallback":
             nodes = parse_BehaviourTree(e, dict_bh, decorators)
             sel = py_trees.composites.Selector(name="selector", memory=True)
@@ -117,11 +122,22 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
                 name=e.getAttribute("name")
             else:
                 name=e.getAttribute("ID")
-            if name in dict_bh:
-                ret.append(dict_bh[name])
-            else:
+
+            # Iterate through key values in dict_bh
+            # As long as key value is a substring in name, append using identified key_value
+            is_bh_notfound = True
+            for bh_name in dict_bh:
+                if bh_name in name:
+                    if inspect.isclass(dict_bh[name]):
+                        ret.append(dict_bh[name]())
+                    else:
+                        ret.append(dict_bh[name])
+                    is_bh_notfound = False
+                    break
+            if is_bh_notfound:
                 print("Behavior not found: ", name)
                 ret.append(py_trees.behaviours.Success(name=name))
+
         elif str(e.nodeName) in dict_bh:
             ret.append(dict_bh[str(e.nodeName)])
         else:
