@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Fallback>
+      <Sequence>
+        <Condition ID="SimpleCondition"/>
+        <Action ID="SayHello"/>
+      </Sequence>
+      <Action ID="SayGoodBye"/>
+    </Fallback>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="IsMidnight"
+               editable="true"/>
+    <Action ID="SayGoodBye"
+            editable="true"/>
+    <Action ID="SayHello"
+            editable="true"/>
+  </TreeNodesModel>
+
+</root>
