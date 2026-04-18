@@ -11,6 +11,9 @@ authors = [
 description = "Library to load XML behavior trees done using Groot GUI (https://github.com/BehaviorTree/Groot) into the py_trees library (https://github.com/splintered-reality/py_trees)"
 readme = "README.md"
 requires-python = ">=3.7"
+dependencies = [
+    "py_trees",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
