@@ -10,8 +10,6 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
             dict_bh[bh.__name__] = bh
         else:
             dict_bh[bh.name] = bh
-    
-    print(f"dict_bh = {dict_bh}")
 
     doc = parse(xml_file_path)
     main_tree_to_execute = ""
@@ -22,7 +20,6 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
 
         for bht in behavior_trees:
             ret = parse_BehaviourTree(bht, dict_bh, decorators)
-        print(f"ret = {ret}")
         return ret[0]
     except Exception as e :
         print(f"Exception parsing Tree: {str(e)}")
