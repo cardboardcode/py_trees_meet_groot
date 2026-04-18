@@ -1,6 +1,8 @@
 from xml.dom.minidom import parse, Element
+
 import py_trees
 import inspect
+
 
 def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
     """Parse XML file into Song Object"""
@@ -12,18 +14,17 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
             dict_bh[bh.name] = bh
 
     doc = parse(xml_file_path)
-    main_tree_to_execute = ""
     try:
         root = doc.getElementsByTagName("root")[0]
-        main_tree_to_execute = root.getAttribute("main_tree_to_execute")
         behavior_trees = root.getElementsByTagName("BehaviorTree")
 
         for bht in behavior_trees:
             ret = parse_BehaviourTree(bht, dict_bh, decorators)
         return ret[0]
-    except Exception as e :
+    except Exception as e:
         print(f"Exception parsing Tree: {str(e)}")
-    
+
+
 def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
     ret = []
     for e in bh.childNodes:
@@ -35,6 +36,7 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             seq = py_trees.composites.Sequence(name="sequence", memory=True)
             seq.add_children(nodes)
             ret.append(seq)
+
         elif str(e.nodeName) == "ReactiveSequence":
             nodes = parse_BehaviourTree(e, dict_bh, decorators)
             seq = py_trees.composites.Sequence(name="sequence", memory=False)
@@ -58,9 +60,15 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
                 th = int(e.getAttribute("success_count"))
             nodes = parse_BehaviourTree(e, dict_bh, decorators)
             if th == 1:
-                par = py_trees.composites.Parallel(name="parallel", policy=py_trees.common.ParallelPolicy.SuccessOnOne())
+                par = py_trees.composites.Parallel(
+                    name="parallel",
+                    policy=py_trees.common.ParallelPolicy.SuccessOnOne(),
+                )
             else:
-                par = py_trees.composites.Parallel(name="parallel", policy=py_trees.common.ParallelPolicy.SuccessOnAll())
+                par = py_trees.composites.Parallel(
+                    name="parallel",
+                    policy=py_trees.common.ParallelPolicy.SuccessOnAll(),
+                )
             par.add_children(nodes)
             ret.append(par)
 
@@ -68,17 +76,25 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
         elif str(e.nodeName) == "Timeout":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
-            dec = py_trees.decorators.Timeout(child=node[0], name="timeout", duration=float(e.getAttribute("msec"))/1000)
+            dec = py_trees.decorators.Timeout(
+                child=node[0],
+                name="timeout",
+                duration=float(e.getAttribute("msec")) / 1000,
+            )
             ret.append(dec)
         elif str(e.nodeName) == "ForceFailure":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
-            dec = py_trees.decorators.SuccessIsFailure(child=node[0], name="success_is_failure")
+            dec = py_trees.decorators.SuccessIsFailure(
+                child=node[0], name="success_is_failure"
+            )
             ret.append(dec)
         elif str(e.nodeName) == "ForceSuccess":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
-            dec = py_trees.decorators.FailureIsSuccess(child=node[0], name="failure_is_success")
+            dec = py_trees.decorators.FailureIsSuccess(
+                child=node[0], name="failure_is_success"
+            )
             ret.append(dec)
         elif str(e.nodeName) == "Inverter":
             node = parse_BehaviourTree(e, dict_bh, decorators)
@@ -111,17 +127,18 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
                 name="set_blackboard",
                 variable_name=output_key,
                 variable_value=value,
-                overwrite = True
+                overwrite=True,
             )
             ret.append(set_blackboard)
         elif str(e.nodeName) == "Action" or str(e.nodeName) == "Condition":
             if e.getAttribute("name") != "":
-                name=e.getAttribute("name")
+                name = e.getAttribute("name")
             else:
-                name=e.getAttribute("ID")
+                name = e.getAttribute("ID")
 
             # Iterate through key values in dict_bh
-            # As long as key value is a substring in name, append using identified key_value
+            # As long as key value is a substring in name, append using
+            # identified key_value
             is_bh_notfound = True
             for bh_name in dict_bh:
                 if bh_name in name:
@@ -139,4 +156,4 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             ret.append(dict_bh[str(e.nodeName)])
         else:
             print("Unknown node " + str(e.nodeName))
-    return ret    
+    return ret
