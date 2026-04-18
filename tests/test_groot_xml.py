@@ -28,7 +28,9 @@ class TestGrootXML(unittest.TestCase):
 
     def create_test_xml(self, xml_content):
         """Create a temporary XML file for testing."""
-        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            suffix='.xml', delete=False
+        ) as tmp_file:
             tmp_file.write(xml_content.encode('utf-8'))
             tmp_file_path = tmp_file.name
         return tmp_file_path
@@ -41,7 +43,9 @@ class TestGrootXML(unittest.TestCase):
     def test_load_missing_xml(self):
         """Test handling of missing XML file."""
         with self.assertRaises(FileNotFoundError):
-            groot_xml.load("/nonexistent/path/test.xml", behaviors=[], decorators={})
+            groot_xml.load(
+                "/nonexistent/path/test.xml", behaviors=[], decorators={}
+            )
 
     def test_action_node_parsing(self):
         """Test parsing of Action node."""
@@ -57,13 +61,17 @@ class TestGrootXML(unittest.TestCase):
             doc = self.parse_with_minidom(xml_file_path)
             behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
 
-            with patch('py_trees_meet_groot.groot_xml.py_trees.behaviour.Behaviour') as mock_behaviour:
+            with patch(
+                'py_trees_meet_groot.groot_xml.py_trees.behaviour.Behaviour'
+            ) as mock_behaviour:
                 mock_behaviour_instance = MagicMock()
                 mock_behaviour_instance.name = "SayHello"
                 mock_behaviour_instance.id = "SayHello"
                 mock_behaviour.return_value = mock_behaviour_instance
 
-                nodes = groot_xml.parse_BehaviourTree(behavior_tree, self.behaviors, self.decorators)
+                nodes = groot_xml.parse_BehaviourTree(
+                    behavior_tree, self.behaviors, self.decorators
+                )
                 self.assertEqual(len(nodes), 1)
                 self.assertEqual(nodes[0].name, "SayHello")
         finally:
@@ -83,13 +91,17 @@ class TestGrootXML(unittest.TestCase):
             doc = self.parse_with_minidom(xml_file_path)
             behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
 
-            with patch('py_trees_meet_groot.groot_xml.py_trees.behaviour.Behaviour') as mock_behaviour:
+            with patch(
+                'py_trees_meet_groot.groot_xml.py_trees.behaviour.Behaviour'
+            ) as mock_behaviour:
                 mock_behaviour_instance = MagicMock()
                 mock_behaviour_instance.name = "SimpleCondition"
                 mock_behaviour_instance.id = "SimpleCondition"
                 mock_behaviour.return_value = mock_behaviour_instance
 
-                nodes = groot_xml.parse_BehaviourTree(behavior_tree, self.behaviors, self.decorators)
+                nodes = groot_xml.parse_BehaviourTree(
+                    behavior_tree, self.behaviors, self.decorators
+                )
                 self.assertEqual(len(nodes), 1)
                 self.assertEqual(nodes[0].name, "SimpleCondition")
         finally:
@@ -111,12 +123,13 @@ class TestGrootXML(unittest.TestCase):
 
             # Capture print output
             import io
-            import sys
             from contextlib import redirect_stdout
 
             f = io.StringIO()
             with redirect_stdout(f):
-                nodes = groot_xml.parse_BehaviourTree(behavior_tree, self.behaviors, self.decorators)
+                groot_xml.parse_BehaviourTree(
+                    behavior_tree, self.behaviors, self.decorators
+                )
             output = f.getvalue()
 
             self.assertIn("Behavior not found:  UnknownBehavior", output)
