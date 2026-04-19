@@ -16,7 +16,8 @@ The main purpose of this module is to load an XML file generated with Groot and 
 </table>
 
 ## **Verified Compatibility**
-Works with py_trees 2.4.0 and Groot2 1.8.1
+- **py_trees** `2.4.0` 
+- **Groot2** `1.8.1`
 
 ## **Groot Supported Features**
 
