@@ -36,6 +36,8 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | IfThenElse | not available |
 | WhileDoElse | not available |
 | SwitchX | not available |
+| ManualSelector | To Be Determined (TBD) |
+| SequenceStar | To Be Determined (TBD) |
 
 
 ### **Decorators to Decorators**
@@ -53,7 +55,7 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | Delay | not available |
 | User defined Decorator | Decorator in `decorators` |
 
-Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackboard`, `FailureIsRunning`, `RunningIsSuccess`... or newly created by the user, must be added in the `decorators` diccionare and pass to the `load` function to be used.
+Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackboard`, `FailureIsRunning`, `RunningIsSuccess`... or newly created by the user, must be added in the `decorators` dictionary and pass to the `load` function to be used.
 
 
 ### **Actions & Conditions to Behaviors**
