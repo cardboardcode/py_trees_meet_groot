@@ -4,20 +4,27 @@
   <!-- ////////// -->
   <BehaviorTree ID="BehaviorTree">
     <Sequence>
-      <Action ID="SayHello"/>
-      <Action ID="Wait"/>
-      <Action ID="SayHello"/>
-      <Action ID="Wait"/>
-      <Action ID="SayHello"/>
+      <Action ID="PrintMessage"
+              message="Waiting start."/>
+      <Action ID="Wait"
+              seconds="10"/>
+      <Action ID="PrintMessage"
+              message="Waiting done."/>
     </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="SayHello"
-            editable="true"/>
+    <Action ID="PrintMessage"
+            editable="true">
+      <input_port name="message"
+                  type="std::string"/>
+    </Action>
     <Action ID="Wait"
-            editable="true"/>
+            editable="true">
+      <input_port name="seconds"
+                  type="int"/>
+    </Action>
   </TreeNodesModel>
 
 </root>

@@ -4,6 +4,13 @@ import py_trees
 import inspect
 
 
+def attributes_to_dict(attributes):
+    return {
+        attributes.item(i).name: attributes.item(i).value
+        for i in range(attributes.length)
+    }
+
+
 def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
     """Parse XML file into Song Object"""
     dict_bh = {}
@@ -36,7 +43,6 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             seq = py_trees.composites.Sequence(name="sequence", memory=True)
             seq.add_children(nodes)
             ret.append(seq)
-
         elif str(e.nodeName) == "ReactiveSequence":
             nodes = parse_BehaviourTree(e, dict_bh, decorators)
             seq = py_trees.composites.Sequence(name="sequence", memory=False)
@@ -131,6 +137,14 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             )
             ret.append(set_blackboard)
         elif str(e.nodeName) == "Action" or str(e.nodeName) == "Condition":
+
+            # DEBUG
+            # for i in range(e.attributes.length):
+            #     attr = e.attributes.item(i)
+            #     print(f"Name: {attr.name}, Value: {attr.value}")
+
+            attrs_dict = attributes_to_dict(e.attributes)
+
             if e.getAttribute("name") != "":
                 name = e.getAttribute("name")
             else:
@@ -143,7 +157,7 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             for bh_name in dict_bh:
                 if bh_name in name:
                     if inspect.isclass(dict_bh[name]):
-                        ret.append(dict_bh[name]())
+                        ret.append(dict_bh[name](**attrs_dict))
                     else:
                         ret.append(dict_bh[name])
                     is_bh_notfound = False

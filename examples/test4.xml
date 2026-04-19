@@ -5,21 +5,28 @@
   <BehaviorTree ID="BehaviorTree">
     <Fallback>
       <Sequence>
-        <Condition ID="SimpleCondition"/>
-        <Action ID="SayHello"/>
+        <Condition ID="SimpleCondition"
+                   always_true="False"/>
+        <Action ID="PrintMessage"
+                message="Success Action"/>
       </Sequence>
-      <Action ID="SayGoodBye"/>
+      <Action ID="PrintMessage"
+              message="Fallback Action"/>
     </Fallback>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Condition ID="IsMidnight"
-               editable="true"/>
-    <Action ID="SayGoodBye"
-            editable="true"/>
-    <Action ID="SayHello"
-            editable="true"/>
+    <Action ID="PrintMessage"
+            editable="true">
+      <input_port name="message"
+                  type="std::string"/>
+    </Action>
+    <Condition ID="SimpleCondition"
+               editable="true">
+      <input_port name="always_true"
+                  type="bool"/>
+    </Condition>
   </TreeNodesModel>
 
 </root>

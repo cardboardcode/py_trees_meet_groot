@@ -2,14 +2,24 @@ import py_trees
 import time
 import uuid
 import sys
+
 from py_trees_meet_groot import groot_xml
 
+
 class Wait(py_trees.behaviour.Behaviour):
-    def __init__(self, name=None, duration=10):
-        if name is None:
-            name = f"Wait_{uuid.uuid4().hex[:4]}"
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID", "seconds"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        raw_value = getattr(self, "seconds", 10)
+        self.duration = int(raw_value)
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
         super().__init__(name)
-        self.duration = duration
         self.start_time = None
 
     def update(self):
@@ -20,35 +30,41 @@ class Wait(py_trees.behaviour.Behaviour):
 
         # Calculate how much time has passed
         elapsed = time.time() - self.start_time
-        
+
         if elapsed >= self.duration:
             print(f"[{self.name}] Time elapsed! ({self.duration}s)")
-            # Reset start_time so the behavior can be reused if ticked again later
-            self.start_time = None 
+            # Reset start_time so behavior can be reused later
+            self.start_time = None
             return py_trees.common.Status.SUCCESS
-        
+
         # While waiting, we return RUNNING
         # We print the remaining time just to show it's working in the console
         remaining = int(self.duration - elapsed)
         print(f"[{self.name}] Waiting... {remaining}s remaining")
         return py_trees.common.Status.RUNNING
 
-class SayHello(py_trees.behaviour.Behaviour):
 
-    def __init__(self, name=None):
-        if name is None:
-            name = f"SayHello_{uuid.uuid4().hex[:4]}"
+class PrintMessage(py_trees.behaviour.Behaviour):
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID", "message"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        self.message = getattr(self, "message", "Insert message here.")
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
         super().__init__(name)
 
     def update(self):
-        print("Hello!")
-        return py_trees.common.Status.SUCCESS  # Using common.SUCCESS is more standard
+        print(self.message)
+        return py_trees.common.Status.SUCCESS
+
 
 if __name__ == "__main__":
-
-    # say_hello = SayHello()
-    # wait = Wait()
-    all_behaviors=[SayHello, Wait]
+    all_behaviors = [PrintMessage, Wait]
 
     root = groot_xml.load("test3.xml", behaviors=all_behaviors)
 
@@ -59,20 +75,18 @@ if __name__ == "__main__":
     # DEBUG
     # Visualise parsed BT Groot xml file as py_trees components.
     # print(py_trees.display.ascii_tree(root))
-    py_trees.display.render_dot_tree(root) # render behavior tree
+    # py_trees.display.render_dot_tree(root)  # render behavior tree
 
     root.setup_with_descendants()
     tree = py_trees.trees.BehaviourTree(root)
 
     print("--- Ticking BT ---")
     print("Running tree...\n")
-    while (True):
+    while True:
         root.tick_once()
         state = tree.root.status.value
         print(f"Tree Result: {state}")
 
-        if state == 'SUCCESS':
+        if state == "SUCCESS":
             break
-
         time.sleep(1)
-        
