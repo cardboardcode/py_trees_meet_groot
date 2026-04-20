@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Fallback>
+      <ReactiveSequence>
+        <Condition ID="SimpleBlackBoardCondition"/>
+        <Action ID="PrintMessage"
+                message="Simulating long-running task..."/>
+        <Action ID="Wait"
+                seconds="10"/>
+        <Action ID="PrintMessage"
+                message="All conditions met - Executing Success Action..."/>
+      </ReactiveSequence>
+      <Action ID="PrintMessage"
+              message="A condition failed - Executing Fallback Action..."/>
+    </Fallback>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="PrintMessage"
+            editable="true">
+      <input_port name="message"
+                  type="std::string"/>
+    </Action>
+    <Condition ID="SimpleBlackBoardCondition"
+               editable="true"/>
+    <Action ID="Wait"
+            editable="true">
+      <input_port name="seconds"
+                  type="int"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
