@@ -77,6 +77,7 @@ if __name__ == "__main__":
     # print(py_trees.display.ascii_tree(root))
     # py_trees.display.render_dot_tree(root)  # render behavior tree
 
+    py_trees.logging.level = py_trees.logging.Level.DEBUG
     root.setup_with_descendants()
     tree = py_trees.trees.BehaviourTree(root)
 

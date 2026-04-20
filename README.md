@@ -19,6 +19,9 @@ The main purpose of this module is to load an XML file generated with Groot and 
 - **py_trees** `2.4.0` 
 - **Groot2** `1.8.1`
 
+> [!WARNING]  
+> **Groot2** `1.9.0` has breaking changes in the `.xml` files it changes.
+
 ## **Groot Supported Features**
 
 BehaviorTree.CPP and py_trees use different control sequences, decorators and tree leaves. This section explains the mapping between one and the other in order to use Groot in py_trees.

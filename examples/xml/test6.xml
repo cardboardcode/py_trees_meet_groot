@@ -3,20 +3,18 @@
       main_tree_to_execute="BehaviorTree">
   <!-- ////////// -->
   <BehaviorTree ID="BehaviorTree">
-    <Fallback>
-      <ReactiveSequence>
-        <Condition ID="SimpleConditionA"/>
-        <Condition ID="SimpleConditionB"/>
+    <ReactiveFallback>
+      <Condition ID="SimpleConditionA"/>
+      <Condition ID="SimpleConditionB"/>
+      <Sequence>
         <Action ID="PrintMessage"
                 message="Simulating long-running task..."/>
         <Action ID="Wait"
                 seconds="10"/>
         <Action ID="PrintMessage"
-                message="All conditions met - Executing Success Action..."/>
-      </ReactiveSequence>
-      <Action ID="PrintMessage"
-              message="A condition failed - Executing Fallback Action..."/>
-    </Fallback>
+                message="Task completed because conditions never triggered..."/>
+      </Sequence>
+    </ReactiveFallback>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->

@@ -1,11 +1,124 @@
 #!/usr/bin/env python3
 
 import unittest
+import uuid
 import os
 import tempfile
+import time
 from unittest.mock import patch, MagicMock
 from py_trees_meet_groot import groot_xml
 import py_trees
+
+
+class SimpleCondition(py_trees.behaviour.Behaviour):
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID", "always_true"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        raw_value = getattr(self, "always_true", True)
+        self.always_true = False if raw_value.upper() == "FALSE" else True
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
+        super().__init__(name)
+
+    def update(self):
+        if self.always_true:
+            return py_trees.common.Status.SUCCESS
+        else:
+            return py_trees.common.Status.FAILURE
+
+
+class SimpleConditionA(py_trees.behaviour.Behaviour):
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
+        super().__init__(name)
+
+    def update(self):
+        return py_trees.common.Status.SUCCESS
+
+
+class SimpleConditionB(py_trees.behaviour.Behaviour):
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
+        super().__init__(name)
+
+    def update(self):
+        return py_trees.common.Status.SUCCESS
+
+
+class PrintMessage(py_trees.behaviour.Behaviour):
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID", "message"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        self.message = getattr(self, "message", "Insert message here.")
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
+        super().__init__(name)
+
+    def update(self):
+        print(self.message)
+        return py_trees.common.Status.SUCCESS
+
+
+class Wait(py_trees.behaviour.Behaviour):
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID", "seconds"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        raw_value = getattr(self, "seconds", 10)
+        self.duration = int(raw_value)
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
+        super().__init__(name)
+        self.start_time = None
+
+    def update(self):
+        # Initialize the start time on the first tick
+        if self.start_time is None:
+            print(f"[{self.name}] Starting timer for {self.duration}s...")
+            self.start_time = time.time()
+
+        # Calculate how much time has passed
+        elapsed = time.time() - self.start_time
+
+        if elapsed >= self.duration:
+            print(f"[{self.name}] Time elapsed! ({self.duration}s)")
+            # Reset start_time so behavior can be reused later
+            self.start_time = None
+            return py_trees.common.Status.SUCCESS
+
+        # While waiting, we return RUNNING
+        # We print the remaining time just to show it's working in the console
+        remaining = int(self.duration - elapsed)
+        print(f"[{self.name}] Waiting... {remaining}s remaining")
+        return py_trees.common.Status.RUNNING
 
 
 class TestGrootXML(unittest.TestCase):
@@ -107,6 +220,235 @@ class TestGrootXML(unittest.TestCase):
         finally:
             os.unlink(xml_file_path)
 
+    def test_fallback_node_parsing(self):
+        """Test parsing of Fallback node."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="3" main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <Fallback>
+              <Sequence>
+                <Condition ID="SimpleCondition"
+                           always_true="False"/>
+                <Action ID="PrintMessage"
+                        message="Success Action"/>
+              </Sequence>
+              <Action ID="PrintMessage"
+                      message="Fallback Action"/>
+            </Fallback>
+          </BehaviorTree>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [PrintMessage, SimpleCondition]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            # Capture print output
+            import io
+            from contextlib import redirect_stdout
+
+            ret = []
+
+            nodes = groot_xml.parse_BehaviourTree(
+                bh=behavior_tree,
+                dict_bh=dict_bh,
+                decorators=local_decorators
+            )
+            seq = py_trees.composites.Sequence(name="sequence", memory=True)
+            seq.add_children(nodes)
+            ret.append(seq)
+            root = ret[0]
+            root.setup_with_descendants()
+
+            f = io.StringIO()
+            with redirect_stdout(f):
+                tree = py_trees.trees.BehaviourTree(root)
+
+                print("--- Ticking BT ---")
+                print("Running tree...\n")
+                while True:
+                    root.tick_once()
+                    state = tree.root.status.value
+                    print(f"Tree Result: {state}")
+
+                    if state == "SUCCESS":
+                        break
+            output = f.getvalue()
+
+            self.assertIn("Fallback Action", output)
+
+        finally:
+            os.unlink(xml_file_path)
+
+    def test_reactive_sequence_node_parsing(self):
+        """Test parsing of ReactiveSequence node."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="3" main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <ReactiveSequence>
+              <Condition ID="SimpleConditionA"/>
+              <Condition ID="SimpleConditionB"/>
+              <Action ID="PrintMessage"
+                      message="Simulating long-running task..."/>
+              <Action ID="Wait"
+                      seconds="2"/>
+              <Action ID="PrintMessage"
+                      message="All conditions met - Success!"/>
+            </ReactiveSequence>
+          </BehaviorTree>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [
+                PrintMessage,
+                SimpleConditionA,
+                SimpleConditionB,
+                Wait
+            ]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            # Capture print output
+            import io
+            from contextlib import redirect_stdout
+
+            ret = []
+
+            nodes = groot_xml.parse_BehaviourTree(
+                bh=behavior_tree,
+                dict_bh=dict_bh,
+                decorators=local_decorators
+            )
+            seq = py_trees.composites.Sequence(
+                name="reactive_sequence",
+                memory=True
+            )
+            seq.add_children(nodes)
+            ret.append(seq)
+            root = ret[0]
+            root.setup_with_descendants()
+
+            f = io.StringIO()
+            with redirect_stdout(f):
+                tree = py_trees.trees.BehaviourTree(root)
+
+                print("--- Ticking BT ---")
+                print("Running tree...\n")
+                while True:
+                    root.tick_once()
+                    state = tree.root.status.value
+                    print(f"Tree Result: {state}")
+
+                    if state == "SUCCESS":
+                        break
+            output = f.getvalue()
+
+            self.assertIn("All conditions met - Success!", output)
+            self.assertIn("Simulating long-running task", output)
+
+        finally:
+            os.unlink(xml_file_path)
+
+    def test_reactive_fallback_node_parsing(self):
+        """Test parsing of ReactiveFallback node."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="3" main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <ReactiveFallback>
+              <Condition ID="SimpleCondition" always_true="False"/>
+              <Condition ID="SimpleCondition" always_true="False"/>
+              <Sequence>
+                <Action ID="PrintMessage"
+                        message="Simulating long-running task..."/>
+                <Action ID="Wait"
+                        seconds="2"/>
+                <Action ID="PrintMessage"
+                    message="Task completed because conditions never triggered"
+                />
+              </Sequence>
+            </ReactiveFallback>
+          </BehaviorTree>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [
+                PrintMessage,
+                SimpleCondition,
+                Wait
+            ]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            # Capture print output
+            import io
+            from contextlib import redirect_stdout
+
+            ret = []
+
+            nodes = groot_xml.parse_BehaviourTree(
+                bh=behavior_tree,
+                dict_bh=dict_bh,
+                decorators=local_decorators
+            )
+            fallback = py_trees.composites.Selector(
+                name="reactive_fallback", memory=True
+            )
+            fallback.add_children(nodes)
+            ret.append(fallback)
+            root = ret[0]
+            root.setup_with_descendants()
+
+            f = io.StringIO()
+            with redirect_stdout(f):
+                tree = py_trees.trees.BehaviourTree(root)
+
+                print("--- Ticking BT ---")
+                print("Running tree...\n")
+                while True:
+                    root.tick_once()
+                    state = tree.root.status.value
+                    print(f"Tree Result: {state}")
+
+                    if state == "SUCCESS":
+                        break
+            output = f.getvalue()
+
+            self.assertIn(
+                "Task completed because conditions never triggered",
+                output
+            )
+            self.assertIn("Simulating long-running task", output)
+
+        finally:
+            os.unlink(xml_file_path)
+
     def test_unknown_behavior(self):
         """Test handling of unknown behavior."""
         xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -132,7 +474,9 @@ class TestGrootXML(unittest.TestCase):
                 )
             output = f.getvalue()
 
-            self.assertIn("Behavior not found:  UnknownBehavior", output)
+            self.assertIn(
+                "Behavior not found:  UnknownBehavior", output
+            )
         finally:
             os.unlink(xml_file_path)
 
