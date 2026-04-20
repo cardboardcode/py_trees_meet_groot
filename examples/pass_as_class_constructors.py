@@ -6,26 +6,42 @@ import sys
 from py_trees_meet_groot import groot_xml
 
 
-class SimpleCondition(py_trees.behaviour.Behaviour):
+class Wait(py_trees.behaviour.Behaviour):
     def __init__(self, **kwargs):
-        allowed_keys = {"ID", "always_true"}
+        allowed_keys = {"ID", "seconds"}
 
         for key, value in kwargs.items():
             if key not in allowed_keys:
                 raise ValueError(f"Unknown parameter: {key}")
             setattr(self, key, value)
 
-        raw_value = getattr(self, "always_true", True)
-        self.always_true = False if raw_value.upper() == "FALSE" else True
+        raw_value = getattr(self, "seconds", 10)
+        self.duration = int(raw_value)
 
         name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
         super().__init__(name)
+        self.start_time = None
 
     def update(self):
-        if self.always_true:
+        # Initialize the start time on the first tick
+        if self.start_time is None:
+            print(f"[{self.name}] Starting timer for {self.duration}s...")
+            self.start_time = time.time()
+
+        # Calculate how much time has passed
+        elapsed = time.time() - self.start_time
+
+        if elapsed >= self.duration:
+            print(f"[{self.name}] Time elapsed! ({self.duration}s)")
+            # Reset start_time so behavior can be reused later
+            self.start_time = None
             return py_trees.common.Status.SUCCESS
-        else:
-            return py_trees.common.Status.FAILURE
+
+        # While waiting, we return RUNNING
+        # We print the remaining time just to show it's working in the console
+        remaining = int(self.duration - elapsed)
+        print(f"[{self.name}] Waiting... {remaining}s remaining")
+        return py_trees.common.Status.RUNNING
 
 
 class PrintMessage(py_trees.behaviour.Behaviour):
@@ -48,9 +64,9 @@ class PrintMessage(py_trees.behaviour.Behaviour):
 
 
 if __name__ == "__main__":
-    all_behaviors = [PrintMessage, SimpleCondition]
+    all_behaviors = [PrintMessage, Wait]
 
-    root = groot_xml.load("test4.xml", behaviors=all_behaviors)
+    root = groot_xml.load("xml/test3.xml", behaviors=all_behaviors)
 
     if root is None:
         print("Failed to load Groot BT .xml file")

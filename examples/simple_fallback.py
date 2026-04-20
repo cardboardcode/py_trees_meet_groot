@@ -6,42 +6,26 @@ import sys
 from py_trees_meet_groot import groot_xml
 
 
-class Wait(py_trees.behaviour.Behaviour):
+class SimpleCondition(py_trees.behaviour.Behaviour):
     def __init__(self, **kwargs):
-        allowed_keys = {"ID", "seconds"}
+        allowed_keys = {"ID", "always_true"}
 
         for key, value in kwargs.items():
             if key not in allowed_keys:
                 raise ValueError(f"Unknown parameter: {key}")
             setattr(self, key, value)
 
-        raw_value = getattr(self, "seconds", 10)
-        self.duration = int(raw_value)
+        raw_value = getattr(self, "always_true", True)
+        self.always_true = False if raw_value.upper() == "FALSE" else True
 
         name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
         super().__init__(name)
-        self.start_time = None
 
     def update(self):
-        # Initialize the start time on the first tick
-        if self.start_time is None:
-            print(f"[{self.name}] Starting timer for {self.duration}s...")
-            self.start_time = time.time()
-
-        # Calculate how much time has passed
-        elapsed = time.time() - self.start_time
-
-        if elapsed >= self.duration:
-            print(f"[{self.name}] Time elapsed! ({self.duration}s)")
-            # Reset start_time so behavior can be reused later
-            self.start_time = None
+        if self.always_true:
             return py_trees.common.Status.SUCCESS
-
-        # While waiting, we return RUNNING
-        # We print the remaining time just to show it's working in the console
-        remaining = int(self.duration - elapsed)
-        print(f"[{self.name}] Waiting... {remaining}s remaining")
-        return py_trees.common.Status.RUNNING
+        else:
+            return py_trees.common.Status.FAILURE
 
 
 class PrintMessage(py_trees.behaviour.Behaviour):
@@ -64,9 +48,9 @@ class PrintMessage(py_trees.behaviour.Behaviour):
 
 
 if __name__ == "__main__":
-    all_behaviors = [PrintMessage, Wait]
+    all_behaviors = [PrintMessage, SimpleCondition]
 
-    root = groot_xml.load("test3.xml", behaviors=all_behaviors)
+    root = groot_xml.load("xml/test4.xml", behaviors=all_behaviors)
 
     if root is None:
         print("Failed to load Groot BT .xml file")

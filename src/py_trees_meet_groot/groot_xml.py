@@ -168,6 +168,10 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
 
         elif str(e.nodeName) in dict_bh:
             ret.append(dict_bh[str(e.nodeName)])
+        elif str(e.nodeName) == "AlwaysSuccess":
+            ret.append(py_trees.behaviours.Success())
+        elif str(e.nodeName) == "AlwaysFailure":
+            ret.append(py_trees.behaviours.Failure())
         else:
             print("Unknown node " + str(e.nodeName))
     return ret

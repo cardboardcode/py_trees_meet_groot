@@ -4,9 +4,9 @@ from py_trees_meet_groot import groot_xml
 
 # Define Groot Actions, Conditions and py_trees Behaviors
 
-if __name__=="__main__":
+if __name__ == "__main__":
     # Load Groot XML behavior tree
-    root = groot_xml.load("test2.xml")
+    root = groot_xml.load("xml/test2.xml")
 
     # DEBUG
     # Visualise parsed BT Groot xml file as py_trees components.
@@ -17,11 +17,12 @@ if __name__=="__main__":
     py_trees.logging.level = py_trees.logging.Level.DEBUG
     try:
         root.setup_with_descendants()
-        
-        for _ in range(5):
-            root.tick_once()
-            time.sleep(0.5)
-            print(py_trees.display.ascii_blackboard())
-            print("-------------------------------------")
+
+        root.tick_once()
+        time.sleep(0.5)
+        print(py_trees.display.ascii_blackboard())
+        print("-------------")
+        print("-------------")
+        print("-------------")
     except KeyboardInterrupt:
         pass
