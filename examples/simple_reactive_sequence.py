@@ -8,7 +8,7 @@ from py_trees_meet_groot import groot_xml
 blackboard = py_trees.blackboard.Client(name="Global")
 
 
-class SimpleBlackBoardCondition(py_trees.behaviour.Behaviour):
+class SimpleConditionA(py_trees.behaviour.Behaviour):
     def __init__(self, **kwargs):
         allowed_keys = {"ID"}
 
@@ -22,11 +22,35 @@ class SimpleBlackBoardCondition(py_trees.behaviour.Behaviour):
 
     def update(self):
         print(
-            f"[SimpleBlackBoardCondition][is_always_true] "
-            f"- {blackboard.is_always_true}"
+            f"[{self.name}][is_A_true] "
+            f"- {blackboard.is_A_true}"
         )
 
-        if blackboard.is_always_true:
+        if blackboard.is_A_true:
+            return py_trees.common.Status.SUCCESS
+        else:
+            return py_trees.common.Status.FAILURE
+
+
+class SimpleConditionB(py_trees.behaviour.Behaviour):
+    def __init__(self, **kwargs):
+        allowed_keys = {"ID"}
+
+        for key, value in kwargs.items():
+            if key not in allowed_keys:
+                raise ValueError(f"Unknown parameter: {key}")
+            setattr(self, key, value)
+
+        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
+        super().__init__(name)
+
+    def update(self):
+        print(
+            f"[{self.name}][is_B_true] "
+            f"- {blackboard.is_B_true}"
+        )
+
+        if blackboard.is_B_true:
             return py_trees.common.Status.SUCCESS
         else:
             return py_trees.common.Status.FAILURE
@@ -90,17 +114,23 @@ class Wait(py_trees.behaviour.Behaviour):
 
 
 if __name__ == "__main__":
-    all_behaviors = [PrintMessage, SimpleBlackBoardCondition, Wait]
+    all_behaviors = [PrintMessage, SimpleConditionA, SimpleConditionB, Wait]
 
     root = groot_xml.load(
         "xml/test5.xml", behaviors=all_behaviors
     )
 
     blackboard.register_key(
-        key="is_always_true",
+        key="is_A_true",
         access=py_trees.common.Access.WRITE,
     )
-    blackboard.is_always_true = True
+    blackboard.is_A_true = True
+
+    blackboard.register_key(
+        key="is_B_true",
+        access=py_trees.common.Access.WRITE,
+    )
+    blackboard.is_B_true = True
 
     if root is None:
         print("Failed to load Groot BT .xml file")
@@ -111,6 +141,7 @@ if __name__ == "__main__":
     # print(py_trees.display.ascii_tree(root))
     # py_trees.display.render_dot_tree(root)  # render behavior tree
 
+    py_trees.logging.level = py_trees.logging.Level.DEBUG
     root.setup_with_descendants()
     tree = py_trees.trees.BehaviourTree(root)
 
@@ -119,7 +150,8 @@ if __name__ == "__main__":
     counter = 1
     while True:
         if counter == 5:
-            blackboard.is_always_true = False
+            # blackboard.is_A_true = False
+            blackboard.is_B_true = False
 
         root.tick_once()
         state = tree.root.status.value
