@@ -22,43 +22,34 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
             dict_bh[bh.name] = bh
 
     doc = parse(xml_file_path)
-    # try:
-    root = doc.getElementsByTagName("root")[0]
-    # TODO(cardboardvoice): Implement feature to dynamically determine what is the maintree label name.
-    behavior_trees = root.getElementsByTagName("BehaviorTree")
-    # DEBUG
-    print(f"No. of BTs found: {len(behavior_trees)}")
-    ret_array = {}
-
-    subtrees = {}
-
-    for bht in behavior_trees:
-        subtree_name = bht.getAttribute("ID")
+    try:
+        root = doc.getElementsByTagName("root")[0]
         # TODO(cardboardvoice): Implement feature to dynamically determine what is the maintree label name.
-        if subtree_name != "BehaviorTree":
-            subtrees[subtree_name] = bht
+        behavior_trees = root.getElementsByTagName("BehaviorTree")
+        # DEBUG
+        print(f"No. of BTs found: {len(behavior_trees)}")
+        ret_array = {}
 
-    for bht in behavior_trees:
-        if bht.getAttribute("ID") == "BehaviorTree":
-            # DEBUG
-            print('-'*10)
-            print(f"Reading new {bht._get_tagName()}: [{bht.getAttribute("ID")}]...")
-            print('-'*10)
-            ret = parse_BehaviourTree(bht, dict_bh, decorators, subtrees=subtrees)
-            ret_array[bht.getAttribute("ID")] = ret
-    # DEBUG
-    print('-'*10)
-    print(f"All Behaviour Trees:")
-    print(f"ret_array = {ret_array}")
-    print('-'*10)
+        subtrees = {}
 
-    # Check if main BT uses any sub trees.
-    # If it does, add the actual populated subtrees as children nodes where they are positioned in main BT.
-    nodes = [child for child in ret_array['BehaviorTree'][0].children]
+        for bht in behavior_trees:
+            subtree_name = bht.getAttribute("ID")
+            # TODO(cardboardvoice): Implement feature to dynamically determine what is the maintree label name.
+            if subtree_name != "BehaviorTree":
+                subtrees[subtree_name] = bht
 
-    return ret_array["BehaviorTree"][0]
-    # except Exception as e:
-    #     print(f"Exception parsing Tree: {str(e)}")
+        for bht in behavior_trees:
+            if bht.getAttribute("ID") == "BehaviorTree":
+                # DEBUG
+                print('-'*10)
+                print(f"Reading new {bht._get_tagName()}: [{bht.getAttribute("ID")}]...")
+                print('-'*10)
+                ret = parse_BehaviourTree(bht, dict_bh, decorators, subtrees=subtrees)
+                ret_array[bht.getAttribute("ID")] = ret
+
+        return ret_array["BehaviorTree"][0]
+    except Exception as e:
+        print(f"Exception parsing Tree: {str(e)}")
 
 
 def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict, ports: dict=None, subtrees: Element=None) -> list:
