@@ -42,8 +42,8 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | IfThenElse | Not Available ❌ |
 | WhileDoElse | Not Available ❌ |
 | SwitchX | Not Available ❌ |
-| ManualSelector | To Be Determined (TBD) |
-| SequenceStar | To Be Determined (TBD) |
+| ManualSelector | Not Available ❌ |
+| SequenceStar | Sequence with `memory=True` |
 
 
 ### **Decorators to Decorators**
