@@ -78,7 +78,6 @@ All manually defined Actions and Conditions in Groot have to be defined as py_tr
 
 The following elements are unsupported right now:
 
-* Sub-trees
 * Decorators with parameters 
 * Connecting the execution of py_trees to Groot 
 
