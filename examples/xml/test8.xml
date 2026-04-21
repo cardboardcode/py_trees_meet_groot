@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="3"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Timeout msec="4000">
+      <Action ID="Wait"
+              seconds="10"/>
+    </Timeout>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="Wait"
+            editable="true">
+      <input_port name="seconds"
+                  type="int"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

@@ -53,5 +53,4 @@ if __name__ == "__main__":
 
         if state == "SUCCESS":
             break
-        counter = counter + 1
         time.sleep(1)
