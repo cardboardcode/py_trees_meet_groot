@@ -22,71 +22,114 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
             dict_bh[bh.name] = bh
 
     doc = parse(xml_file_path)
-    try:
-        root = doc.getElementsByTagName("root")[0]
-        # TODO(cardboardvoice): Implement feature to dynamically determine what is the maintree label name.
-        behavior_trees = root.getElementsByTagName("BehaviorTree")
-        # DEBUG
-        print(f"No. of BTs found: {len(behavior_trees)}")
-        ret_array = {}
+    # try:
+    root = doc.getElementsByTagName("root")[0]
+    # TODO(cardboardvoice):
+    #   Implement feature to dynamically determine what is the maintree
+    #   label name.
+    behavior_trees = root.getElementsByTagName("BehaviorTree")
+    # DEBUG
+    print(f"No. of BTs found: {len(behavior_trees)}")
+    ret_array = {}
 
-        subtrees = {}
+    subtrees = {}
 
-        for bht in behavior_trees:
-            subtree_name = bht.getAttribute("ID")
-            # TODO(cardboardvoice): Implement feature to dynamically determine what is the maintree label name.
-            if subtree_name != "BehaviorTree":
-                subtrees[subtree_name] = bht
+    for bht in behavior_trees:
+        subtree_name = bht.getAttribute("ID")
+        # TODO(cardboardvoice):
+        #   Implement feature to dynamically determine what is the maintree
+        #   labelname.
+        if subtree_name != "BehaviorTree":
+            subtrees[subtree_name] = bht
 
-        for bht in behavior_trees:
-            if bht.getAttribute("ID") == "BehaviorTree":
-                # DEBUG
-                print('-'*10)
-                print(f"Reading new {bht._get_tagName()}: [{bht.getAttribute("ID")}]...")
-                print('-'*10)
-                ret = parse_BehaviourTree(bht, dict_bh, decorators, subtrees=subtrees)
-                ret_array[bht.getAttribute("ID")] = ret
+    for bht in behavior_trees:
+        if bht.getAttribute("ID") == "BehaviorTree":
+            # DEBUG
+            print('-' * 10)
+            print(
+                f"Reading new {bht._get_tagName()}: "
+                f"[{bht.getAttribute('ID')}]..."
+            )
+            print('-' * 10)
+            ret = parse_BehaviourTree(
+                bht, dict_bh, decorators, subtrees=subtrees
+            )
+            ret_array[bht.getAttribute("ID")] = ret
 
-        return ret_array["BehaviorTree"][0]
-    except Exception as e:
-        print(f"Exception parsing Tree: {str(e)}")
+    return ret_array["BehaviorTree"][0]
+    # except Exception as e:
+    #     print(f"Exception parsing Tree: {str(e)}")
 
 
-def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict, ports: dict=None, subtrees: Element=None) -> list:
+def parse_BehaviourTree(
+    bh: Element,
+    dict_bh: dict,
+    decorators: dict,
+    ports: dict = None,
+    subtrees: Element = None
+) -> list:
     ret = []
 
     # Filter out the text nodes (whitespace)
-    filtered_nodes = [node for node in bh.childNodes if node.nodeType == node.ELEMENT_NODE]
+    filtered_nodes = [
+        node for node in bh.childNodes
+        if node.nodeType == node.ELEMENT_NODE
+    ]
 
     for e in filtered_nodes:
         # # DEBUG
-        # print(f"str(e.nodeName) = {str(e.nodeName)}")
-        # print(f"type(e) = {type(e)}")
+        print(f"str(e.nodeName) = {str(e.nodeName)}")
+        print(f"type(e) = {type(e)}")
         # Control
         if str(e.nodeName) == "Sequence":
             if ports is None:
-                nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
-                seq = py_trees.composites.Sequence(name=f"seq_{uuid.uuid4().hex[:4]}", memory=True)
+                nodes = parse_BehaviourTree(
+                    e, dict_bh, decorators, subtrees=subtrees
+                )
+                seq = py_trees.composites.Sequence(
+                    name=f"seq_{uuid.uuid4().hex[:4]}",
+                    memory=True
+                )
                 seq.add_children(nodes)
                 ret.append(seq)
             else:
-                nodes = parse_BehaviourTree(e, dict_bh, decorators, ports=ports, subtrees=subtrees)
-                seq = py_trees.composites.Sequence(name=f"seq_{uuid.uuid4().hex[:4]}", memory=True)
+                nodes = parse_BehaviourTree(
+                    e, dict_bh, decorators, ports=ports, subtrees=subtrees
+                )
+                seq = py_trees.composites.Sequence(
+                    name=f"seq_{uuid.uuid4().hex[:4]}",
+                    memory=True
+                )
                 seq.add_children(nodes)
                 ret.append(seq)
         elif str(e.nodeName) == "ReactiveSequence":
-            nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
-            seq = py_trees.composites.Sequence(name=f"rseq_{uuid.uuid4().hex[:4]}", memory=False)
+            nodes = parse_BehaviourTree(
+                e, dict_bh, decorators, subtrees=subtrees
+            )
+            seq = py_trees.composites.Sequence(
+                name=f"rseq_{uuid.uuid4().hex[:4]}",
+                memory=False
+            )
             seq.add_children(nodes)
             ret.append(seq)
         elif str(e.nodeName) == "Fallback":
-            nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
-            sel = py_trees.composites.Selector(name=f"fall_{uuid.uuid4().hex[:4]}", memory=True)
+            nodes = parse_BehaviourTree(
+                e, dict_bh, decorators, subtrees=subtrees
+            )
+            sel = py_trees.composites.Selector(
+                name=f"fall_{uuid.uuid4().hex[:4]}",
+                memory=True
+            )
             sel.add_children(nodes)
             ret.append(sel)
         elif str(e.nodeName) == "ReactiveFallback":
-            nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
-            sel = py_trees.composites.Selector(name=f"rfall_{uuid.uuid4().hex[:4]}", memory=False)
+            nodes = parse_BehaviourTree(
+                e, dict_bh, decorators, subtrees=subtrees
+            )
+            sel = py_trees.composites.Selector(
+                name=f"rfall_{uuid.uuid4().hex[:4]}",
+                memory=False
+            )
             sel.add_children(nodes)
             ret.append(sel)
         elif str(e.nodeName) == "Parallel":
@@ -182,25 +225,29 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict, ports: dic
 
             # DEBUG
             if ports is not None:
-                print(f"Action Check:")
-                print(f"-"*10 + f"- ATTRS_DICT:{attrs_dict}")
-                print(f"-"*10 + f"- PORTS:{ports}")
+                print("Action Check:")
+                print("-" * 10 + "- ATTRS_DICT:" + str(attrs_dict))
+                print("-" * 10 + "- PORTS:" + str(ports))
 
             for key, val in attrs_dict.items():
                 try:
                     for port_key, port_value in ports.items():
                         if port_key.upper() in val.upper():
                             # DEBUG
-                            print(f"port_key.upper() = {port_key.upper()}")
+                            print(
+                                f"port_key.upper() = {port_key.upper()}"
+                            )
                             print(f"val.upper() = {val.upper()}")
                             attrs_dict[key] = port_value
-                except Exception as e:
+                except Exception:
                     pass
 
             # DEBUG
             if ports is not None:
-                print(f"-"*10 + f"- AFTER")
-                print(f"-"*10 + f"- ATTRS_DICT:{attrs_dict}")
+                print("-" * 10 + "- AFTER")
+                print("-" * 10 + "- ATTRS_DICT:" + str(attrs_dict))
+
+            print(f"e = {e}")
 
             if e.getAttribute("name") != "":
                 name = e.getAttribute("name")
@@ -235,8 +282,10 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict, ports: dic
             else:
                 name = e.getAttribute("ID")
             print(f"Loading Subtree: {name}")
-            seq = py_trees.composites.Sequence(name=f"{name}_SubTree_{uuid.uuid4().hex[:4]}", memory=True)
-            
+            seq = py_trees.composites.Sequence(
+                name=f"{name}_SubTree_{uuid.uuid4().hex[:4]}",
+                memory=True
+            )
             # Extract port values
             attr_map = {}
             for i in range(e.attributes.length):
@@ -248,7 +297,9 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict, ports: dic
             print(f"attr_map = {attr_map}")
             print(f"subtrees[{name}] = {subtrees[name]}")
 
-            nodes = parse_BehaviourTree(subtrees[name], dict_bh, decorators, ports=attr_map)
+            nodes = parse_BehaviourTree(
+                subtrees[name], dict_bh, decorators, ports=attr_map
+            )
             seq.add_children(nodes)
             ret.append(seq)
         else:

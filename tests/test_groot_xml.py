@@ -480,6 +480,96 @@ class TestGrootXML(unittest.TestCase):
         finally:
             os.unlink(xml_file_path)
 
+    def test_simple_subtree_parsing(self):
+        """Test parsing of SubTree node with parameter replacement."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="4"
+              main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <Sequence>
+              <SubTree ID="PrintMessageTree"
+                       msg_target_1="Hello Sub-World!"
+                       msg_target_2="Goodbye Sub-World!"
+                       _autoremap="true"/>
+              <SubTree ID="PrintMessageTree"
+                       msg_target_1="Hello again, Sub-World!"
+                       msg_target_2="Goodbye again, Sub-World!"
+                       _autoremap="true"/>
+            </Sequence>
+          </BehaviorTree>
+
+          <BehaviorTree ID="PrintMessageTree">
+            <Sequence>
+              <Action ID="PrintMessage"
+                      message="{msg_target_1}"/>
+              <Action ID="PrintMessage"
+                      message="{msg_target_2}"/>
+            </Sequence>
+          </BehaviorTree>
+
+          <TreeNodesModel>
+            <Action ID="PrintMessage"
+                    editable="true">
+              <input_port name="message"
+                          type="std::string"/>
+            </Action>
+          </TreeNodesModel>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [PrintMessage]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            # Create subtrees dictionary like the load function does
+            subtrees = {}
+            for bht in doc.getElementsByTagName("BehaviorTree"):
+                subtree_name = bht.getAttribute("ID")
+                if subtree_name != "BehaviorTree":
+                    subtrees[subtree_name] = bht
+
+            # Capture print output
+            import io
+            from contextlib import redirect_stdout
+
+            f = io.StringIO()
+            with redirect_stdout(f):
+                nodes = groot_xml.parse_BehaviourTree(
+                    bh=behavior_tree,
+                    dict_bh=dict_bh,
+                    decorators=local_decorators,
+                    subtrees=subtrees
+                )
+            seq = py_trees.composites.Sequence(name="sequence", memory=True)
+            seq.add_children(nodes)
+
+            tree = py_trees.trees.BehaviourTree(seq)
+            root = tree.root
+
+            # Setup and run the tree
+            root.setup_with_descendants()
+
+            # Tick once to trigger the subtree execution
+            root.tick_once()
+            output = f.getvalue()
+
+            # Verify that the subtree parameters were replaced correctly
+            self.assertIn("Hello Sub-World!", output)
+            self.assertIn("Goodbye Sub-World!", output)
+            self.assertIn("Hello again, Sub-World!", output)
+            self.assertIn("Goodbye again, Sub-World!", output)
+        finally:
+            os.unlink(xml_file_path)
+
 
 if __name__ == '__main__':
     unittest.main()
