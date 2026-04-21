@@ -5,6 +5,7 @@ import sys
 
 from py_trees_meet_groot import groot_xml
 
+
 class PrintMessage(py_trees.behaviour.Behaviour):
     def __init__(self, **kwargs):
         allowed_keys = {"ID", "message"}
