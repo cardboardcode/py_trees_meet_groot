@@ -1,5 +1,6 @@
 from xml.dom.minidom import parse, Element
 
+import uuid
 import py_trees
 import inspect
 
@@ -21,41 +22,80 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
             dict_bh[bh.name] = bh
 
     doc = parse(xml_file_path)
-    try:
-        root = doc.getElementsByTagName("root")[0]
-        behavior_trees = root.getElementsByTagName("BehaviorTree")
+    # try:
+    root = doc.getElementsByTagName("root")[0]
+    # TODO(cardboardvoice): Implement feature to dynamically determine what is the maintree label name.
+    behavior_trees = root.getElementsByTagName("BehaviorTree")
+    # DEBUG
+    print(f"No. of BTs found: {len(behavior_trees)}")
+    ret_array = {}
 
-        for bht in behavior_trees:
-            ret = parse_BehaviourTree(bht, dict_bh, decorators)
-        return ret[0]
-    except Exception as e:
-        print(f"Exception parsing Tree: {str(e)}")
+    subtrees = {}
+
+    for bht in behavior_trees:
+        subtree_name = bht.getAttribute("ID")
+        # TODO(cardboardvoice): Implement feature to dynamically determine what is the maintree label name.
+        if subtree_name != "BehaviorTree":
+            subtrees[subtree_name] = bht
+
+    for bht in behavior_trees:
+        if bht.getAttribute("ID") == "BehaviorTree":
+            # DEBUG
+            print('-'*10)
+            print(f"Reading new {bht._get_tagName()}: [{bht.getAttribute("ID")}]...")
+            print('-'*10)
+            ret = parse_BehaviourTree(bht, dict_bh, decorators, subtrees=subtrees)
+            ret_array[bht.getAttribute("ID")] = ret
+    # DEBUG
+    print('-'*10)
+    print(f"All Behaviour Trees:")
+    print(f"ret_array = {ret_array}")
+    print('-'*10)
+
+    # Check if main BT uses any sub trees.
+    # If it does, add the actual populated subtrees as children nodes where they are positioned in main BT.
+    nodes = [child for child in ret_array['BehaviorTree'][0].children]
+
+    return ret_array["BehaviorTree"][0]
+    # except Exception as e:
+    #     print(f"Exception parsing Tree: {str(e)}")
 
 
-def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
+def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict, ports: dict=None, subtrees: Element=None) -> list:
     ret = []
-    for e in bh.childNodes:
-        if str(e.nodeName) == "#text":
-            pass
+
+    # Filter out the text nodes (whitespace)
+    filtered_nodes = [node for node in bh.childNodes if node.nodeType == node.ELEMENT_NODE]
+
+    for e in filtered_nodes:
+        # # DEBUG
+        # print(f"str(e.nodeName) = {str(e.nodeName)}")
+        # print(f"type(e) = {type(e)}")
         # Control
-        elif str(e.nodeName) == "Sequence":
-            nodes = parse_BehaviourTree(e, dict_bh, decorators)
-            seq = py_trees.composites.Sequence(name="sequence", memory=True)
-            seq.add_children(nodes)
-            ret.append(seq)
+        if str(e.nodeName) == "Sequence":
+            if ports is None:
+                nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
+                seq = py_trees.composites.Sequence(name=f"seq_{uuid.uuid4().hex[:4]}", memory=True)
+                seq.add_children(nodes)
+                ret.append(seq)
+            else:
+                nodes = parse_BehaviourTree(e, dict_bh, decorators, ports=ports, subtrees=subtrees)
+                seq = py_trees.composites.Sequence(name=f"seq_{uuid.uuid4().hex[:4]}", memory=True)
+                seq.add_children(nodes)
+                ret.append(seq)
         elif str(e.nodeName) == "ReactiveSequence":
-            nodes = parse_BehaviourTree(e, dict_bh, decorators)
-            seq = py_trees.composites.Sequence(name="sequence", memory=False)
+            nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
+            seq = py_trees.composites.Sequence(name=f"rseq_{uuid.uuid4().hex[:4]}", memory=False)
             seq.add_children(nodes)
             ret.append(seq)
         elif str(e.nodeName) == "Fallback":
-            nodes = parse_BehaviourTree(e, dict_bh, decorators)
-            sel = py_trees.composites.Selector(name="selector", memory=True)
+            nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
+            sel = py_trees.composites.Selector(name=f"fall_{uuid.uuid4().hex[:4]}", memory=True)
             sel.add_children(nodes)
             ret.append(sel)
         elif str(e.nodeName) == "ReactiveFallback":
-            nodes = parse_BehaviourTree(e, dict_bh, decorators)
-            sel = py_trees.composites.Selector(name="selector", memory=False)
+            nodes = parse_BehaviourTree(e, dict_bh, decorators, subtrees=subtrees)
+            sel = py_trees.composites.Selector(name=f"rfall_{uuid.uuid4().hex[:4]}", memory=False)
             sel.add_children(nodes)
             ret.append(sel)
         elif str(e.nodeName) == "Parallel":
@@ -67,12 +107,12 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             nodes = parse_BehaviourTree(e, dict_bh, decorators)
             if th == 1:
                 par = py_trees.composites.Parallel(
-                    name="parallel",
+                    name=f"parallel_{uuid.uuid4().hex[:4]}",
                     policy=py_trees.common.ParallelPolicy.SuccessOnOne(),
                 )
             else:
                 par = py_trees.composites.Parallel(
-                    name="parallel",
+                    name=f"parallel_{uuid.uuid4().hex[:4]}",
                     policy=py_trees.common.ParallelPolicy.SuccessOnAll(),
                 )
             par.add_children(nodes)
@@ -84,13 +124,14 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             print(node[0])
             dec = py_trees.decorators.Timeout(
                 child=node[0],
-                name="timeout",
+                name=f"timeout_{uuid.uuid4().hex[:4]}",
                 duration=float(e.getAttribute("msec")) / 1000,
             )
             ret.append(dec)
         elif str(e.nodeName) == "ForceFailure":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
+            # TODO(cardboardcode): Assign unique id for name.
             dec = py_trees.decorators.SuccessIsFailure(
                 child=node[0], name="success_is_failure"
             )
@@ -98,6 +139,7 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
         elif str(e.nodeName) == "ForceSuccess":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
+            # TODO(cardboardcode): Assign unique id for name.
             dec = py_trees.decorators.FailureIsSuccess(
                 child=node[0], name="failure_is_success"
             )
@@ -105,6 +147,7 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
         elif str(e.nodeName) == "Inverter":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
+            # TODO(cardboardcode): Assign unique id for name.
             dec = py_trees.decorators.Inverter(child=node[0], name="inverter")
             ret.append(dec)
         elif str(e.nodeName) == "Decorator":
@@ -129,6 +172,7 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
         elif str(e.nodeName) == "SetBlackboard":
             output_key = e.getAttribute("output_key")
             value = e.getAttribute("value")
+            # TODO(cardboardcode): Assign unique id for name.
             set_blackboard = py_trees.behaviours.SetBlackboardVariable(
                 name="set_blackboard",
                 variable_name=output_key,
@@ -139,11 +183,33 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
         elif str(e.nodeName) == "Action" or str(e.nodeName) == "Condition":
 
             # DEBUG
-            # for i in range(e.attributes.length):
-            #     attr = e.attributes.item(i)
-            #     print(f"Name: {attr.name}, Value: {attr.value}")
+            for i in range(e.attributes.length):
+                attr = e.attributes.item(i)
+                print(f"Name: {attr.name}, Value: {attr.value}")
 
             attrs_dict = attributes_to_dict(e.attributes)
+
+            # DEBUG
+            if ports is not None:
+                print(f"Action Check:")
+                print(f"-"*10 + f"- ATTRS_DICT:{attrs_dict}")
+                print(f"-"*10 + f"- PORTS:{ports}")
+
+            for key, val in attrs_dict.items():
+                try:
+                    for port_key, port_value in ports.items():
+                        if port_key.upper() in val.upper():
+                            # DEBUG
+                            print(f"port_key.upper() = {port_key.upper()}")
+                            print(f"val.upper() = {val.upper()}")
+                            attrs_dict[key] = port_value
+                except Exception as e:
+                    pass
+
+            # DEBUG
+            if ports is not None:
+                print(f"-"*10 + f"- AFTER")
+                print(f"-"*10 + f"- ATTRS_DICT:{attrs_dict}")
 
             if e.getAttribute("name") != "":
                 name = e.getAttribute("name")
@@ -172,6 +238,30 @@ def parse_BehaviourTree(bh: Element, dict_bh: dict, decorators: dict) -> list:
             ret.append(py_trees.behaviours.Success())
         elif str(e.nodeName) == "AlwaysFailure":
             ret.append(py_trees.behaviours.Failure())
+        elif str(e.nodeName) == "SubTree":
+            if e.getAttribute("name") != "":
+                name = e.getAttribute("name")
+            else:
+                name = e.getAttribute("ID")
+            print(f"Loading Subtree: {name}")
+            seq = py_trees.composites.Sequence(name=f"{name}_SubTree_{uuid.uuid4().hex[:4]}", memory=True)
+            
+            # Extract port values
+            attr_map = {}
+            for i in range(e.attributes.length):
+                attr = e.attributes.item(i)
+                # DEBUG
+                print(f"Name: {attr.name}, Value: {attr.value}")
+                attr_map[attr.name] = attr.value
+
+            print(f"attr_map = {attr_map}")
+            print(f"subtrees[{name}] = {subtrees[name]}")
+
+            nodes = parse_BehaviourTree(subtrees[name], dict_bh, decorators, ports=attr_map)
+            seq.add_children(nodes)
+            ret.append(seq)
         else:
-            print("Unknown node " + str(e.nodeName))
+            print("Unknown Node: ", name)
+    # DEBUG
+    # print(f"ret = {ret}")
     return ret

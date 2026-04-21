@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Sequence>
+      <SubTree ID="PrintMessageTree"
+               msg_target="Hello Sub-World!"
+               _autoremap="true"/>
+      <SubTree ID="PrintMessageTree"
+               msg_target="Hello again, Sub-World!"
+               _autoremap="true"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- ////////// -->
+  <BehaviorTree ID="PrintMessageTree">
+    <Sequence>
+      <Action ID="PrintMessage"
+              message="{msg_target}"/>
+      <Action ID="PrintMessage"
+              message="{msg_target}"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="PrintMessage"
+            editable="true">
+      <input_port name="message"
+                  type="std::string"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
