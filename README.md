@@ -39,9 +39,9 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | ReactiveFallback | Selector with `memory=False` |
 | Parallel with `success_threshold=1` | Parallel with `policy=SuccessOnOne` |
 | Parallel with `success_threshold <> 1` | Parallel with `policy=SuccessOnAll` |
-| IfThenElse | not available |
-| WhileDoElse | not available |
-| SwitchX | not available |
+| IfThenElse | Not Available ❌ |
+| WhileDoElse | Not Available ❌ |
+| SwitchX | Not Available ❌ |
 | ManualSelector | To Be Determined (TBD) |
 | SequenceStar | To Be Determined (TBD) |
 
@@ -56,9 +56,9 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | Inverter | Inverter | 
 | BlackboardCheckX | *EternalGuard?* | 
 | KeepRunningUntilFailure | *Condition?* |
-| Repeat | not available |
-| RetryUntilSuccessful | not available |
-| Delay | not available |
+| Repeat | Retry |
+| RetryUntilSuccessful | FailureIsRunning |
+| Delay | Timer |
 | User defined Decorator | Decorator in `decorators` |
 
 Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackboard`, `FailureIsRunning`, `RunningIsSuccess`... or newly created by the user, must be added in the `decorators` dictionary and pass to the `load` function to be used.
