@@ -5,10 +5,12 @@
   <BehaviorTree ID="BehaviorTree">
     <Sequence>
       <SubTree ID="PrintMessageTree"
-               msg_target="Hello Sub-World!"
+               msg_target_1="Hello Sub-World!"
+               msg_target_2="Goodbye Sub-World!"
                _autoremap="true"/>
       <SubTree ID="PrintMessageTree"
-               msg_target="Hello again, Sub-World!"
+               msg_target_1="Hello again, Sub-World!"
+               msg_target_2="Goodbye again, Sub-World!"
                _autoremap="true"/>
     </Sequence>
   </BehaviorTree>
@@ -17,9 +19,9 @@
   <BehaviorTree ID="PrintMessageTree">
     <Sequence>
       <Action ID="PrintMessage"
-              message="{msg_target}"/>
+              message="{msg_target_1}"/>
       <Action ID="PrintMessage"
-              message="{msg_target}"/>
+              message="{msg_target_2}"/>
     </Sequence>
   </BehaviorTree>
 
