@@ -22,43 +22,25 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
             dict_bh[bh.name] = bh
 
     doc = parse(xml_file_path)
-    # try:
     root = doc.getElementsByTagName("root")[0]
-    # TODO(cardboardvoice):
-    #   Implement feature to dynamically determine what is the maintree
-    #   label name.
     behavior_trees = root.getElementsByTagName("BehaviorTree")
-    # DEBUG
-    print(f"No. of BTs found: {len(behavior_trees)}")
     ret_array = {}
 
     subtrees = {}
 
     for bht in behavior_trees:
         subtree_name = bht.getAttribute("ID")
-        # TODO(cardboardvoice):
-        #   Implement feature to dynamically determine what is the maintree
-        #   labelname.
         if subtree_name != "BehaviorTree":
             subtrees[subtree_name] = bht
 
     for bht in behavior_trees:
         if bht.getAttribute("ID") == "BehaviorTree":
-            # DEBUG
-            print('-' * 10)
-            print(
-                f"Reading new {bht._get_tagName()}: "
-                f"[{bht.getAttribute('ID')}]..."
-            )
-            print('-' * 10)
             ret = parse_BehaviourTree(
                 bht, dict_bh, decorators, subtrees=subtrees
             )
             ret_array[bht.getAttribute("ID")] = ret
 
     return ret_array["BehaviorTree"][0]
-    # except Exception as e:
-    #     print(f"Exception parsing Tree: {str(e)}")
 
 
 def parse_BehaviourTree(
