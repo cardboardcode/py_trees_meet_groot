@@ -23,24 +23,25 @@ def load(xml_file_path: str, behaviors: list = [], decorators: dict = {}):
 
     doc = parse(xml_file_path)
     root = doc.getElementsByTagName("root")[0]
-    behavior_trees = root.getElementsByTagName("BehaviorTree")
+    main_tree_to_execute = root.getAttribute("main_tree_to_execute")
+    behavior_trees = root.getElementsByTagName(main_tree_to_execute)
     ret_array = {}
 
     subtrees = {}
 
     for bht in behavior_trees:
         subtree_name = bht.getAttribute("ID")
-        if subtree_name != "BehaviorTree":
+        if subtree_name != main_tree_to_execute:
             subtrees[subtree_name] = bht
 
     for bht in behavior_trees:
-        if bht.getAttribute("ID") == "BehaviorTree":
+        if bht.getAttribute("ID") == main_tree_to_execute:
             ret = parse_BehaviourTree(
                 bht, dict_bh, decorators, subtrees=subtrees
             )
             ret_array[bht.getAttribute("ID")] = ret
 
-    return ret_array["BehaviorTree"][0]
+    return ret_array[main_tree_to_execute][0]
 
 
 def parse_BehaviourTree(
