@@ -238,7 +238,6 @@ def parse_BehaviourTree(
                 name = e.getAttribute("name")
             else:
                 name = e.getAttribute("ID")
-            print(f"Loading Subtree: {name}")
             seq = py_trees.composites.Sequence(
                 name=f"{name}_SubTree_{uuid.uuid4().hex[:4]}",
                 memory=True

@@ -549,17 +549,17 @@ class TestGrootXML(unittest.TestCase):
                     decorators=local_decorators,
                     subtrees=subtrees
                 )
-            seq = py_trees.composites.Sequence(name="sequence", memory=True)
-            seq.add_children(nodes)
+                seq = py_trees.composites.Sequence(name="sequence", memory=True)
+                seq.add_children(nodes)
 
-            tree = py_trees.trees.BehaviourTree(seq)
-            root = tree.root
+                tree = py_trees.trees.BehaviourTree(seq)
+                root = tree.root
 
-            # Setup and run the tree
-            root.setup_with_descendants()
+                # Setup and run the tree
+                root.setup_with_descendants()
 
-            # Tick once to trigger the subtree execution
-            root.tick_once()
+                # Tick once to trigger the subtree execution
+                root.tick_once()
             output = f.getvalue()
 
             # Verify that the subtree parameters were replaced correctly
