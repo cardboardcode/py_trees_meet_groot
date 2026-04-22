@@ -60,9 +60,6 @@ def parse_BehaviourTree(
     ]
 
     for e in filtered_nodes:
-        # # DEBUG
-        print(f"str(e.nodeName) = {str(e.nodeName)}")
-        print(f"type(e) = {type(e)}")
         # Control
         if str(e.nodeName) == "Sequence":
             if ports is None:
@@ -199,38 +196,15 @@ def parse_BehaviourTree(
             ret.append(set_blackboard)
         elif str(e.nodeName) == "Action" or str(e.nodeName) == "Condition":
 
-            # DEBUG
-            for i in range(e.attributes.length):
-                attr = e.attributes.item(i)
-                print(f"Name: {attr.name}, Value: {attr.value}")
-
             attrs_dict = attributes_to_dict(e.attributes)
-
-            # DEBUG
-            if ports is not None:
-                print("Action Check:")
-                print("-" * 10 + "- ATTRS_DICT:" + str(attrs_dict))
-                print("-" * 10 + "- PORTS:" + str(ports))
 
             for key, val in attrs_dict.items():
                 try:
                     for port_key, port_value in ports.items():
                         if port_key.upper() in val.upper():
-                            # DEBUG
-                            print(
-                                f"port_key.upper() = {port_key.upper()}"
-                            )
-                            print(f"val.upper() = {val.upper()}")
                             attrs_dict[key] = port_value
                 except Exception:
                     pass
-
-            # DEBUG
-            if ports is not None:
-                print("-" * 10 + "- AFTER")
-                print("-" * 10 + "- ATTRS_DICT:" + str(attrs_dict))
-
-            print(f"e = {e}")
 
             if e.getAttribute("name") != "":
                 name = e.getAttribute("name")
@@ -273,12 +247,7 @@ def parse_BehaviourTree(
             attr_map = {}
             for i in range(e.attributes.length):
                 attr = e.attributes.item(i)
-                # DEBUG
-                print(f"Name: {attr.name}, Value: {attr.value}")
                 attr_map[attr.name] = attr.value
-
-            print(f"attr_map = {attr_map}")
-            print(f"subtrees[{name}] = {subtrees[name]}")
 
             nodes = parse_BehaviourTree(
                 subtrees[name], dict_bh, decorators, ports=attr_map
@@ -287,6 +256,4 @@ def parse_BehaviourTree(
             ret.append(seq)
         else:
             print("Unknown Node: ", name)
-    # DEBUG
-    # print(f"ret = {ret}")
     return ret
