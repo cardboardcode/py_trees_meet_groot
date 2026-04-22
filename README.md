@@ -18,7 +18,7 @@ The main purpose of this module is to load an XML file generated with Groot and 
     </tr>
 </table>
 
-## **Verified Compatibility**
+## **Verified Compatibilities**
 - **py_trees** `2.4.0` 
 - **Groot2** `1.8.1`
 
@@ -104,23 +104,45 @@ all_decorators["one_shot"] = one_shot
 root = groot_xml.load("GROOT_XML_FILE_TO_LOAD.xml", behaviors=all_behaviors, decorators=all_decorators)
 ```
 
+> [!NOTE]  
+> For more examples, please refer to [examples](https://github.com/cardboardcode/py_trees_meet_groot/tree/devel/examples) directory.
+
 ## **Build From Source**
 
-1. **Create a virtual environment**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Linux/macOS
-   venv\Scripts\activate     # On Windows
-   ```
+1. **Download** the repository:
+    ```bash
+    git clone https://github.com/cardboardcode/py_trees_meet_groot.git --single-branch --depth 1 --branch devel && cd py_trees_meet_groot
+    ```
 
-2. **Install the package in development mode** (this installs `py_trees` as a dependency):
+2. **Create** a virtual environment:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate  # On Linux/macOS
+    
+    ```
+
+    ```bash
+    python3 -m venv venv
+    venv\Scripts\activate     # On Windows
+    ```
+
+3. **Install** the package in development mode (this installs `py_trees` as a dependency):
    ```bash
    pip install -e .
    ```
 
+> [!WARNING]  
+> Do not use `pip install py_trees_meet_groot` since this implementation is not yet aligned with what is published on pip.
+
 ## **Verify**
 
 **Verify the installation** by running a simple test:
-   ```bash
-   python -c "import py_trees_meet_groot; print('Successfully imported py_trees_meet_groot')"
-   ```
+    ```bash
+    python -c "import py_trees_meet_groot; print('Successfully imported  py_trees_meet_groot')"
+    ```
+
+You should see the following terminal output:
+
+    ```bash
+    Successfully imported py_trees_meet_groot
+    ```
