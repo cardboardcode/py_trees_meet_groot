@@ -142,7 +142,6 @@ root = groot_xml.load("GROOT_XML_FILE_TO_LOAD.xml", behaviors=all_behaviors, dec
     ```
 
 You should see the following terminal output:
-
     ```bash
     Successfully imported py_trees_meet_groot
     ```
