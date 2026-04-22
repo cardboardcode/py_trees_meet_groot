@@ -549,7 +549,9 @@ class TestGrootXML(unittest.TestCase):
                     decorators=local_decorators,
                     subtrees=subtrees
                 )
-                seq = py_trees.composites.Sequence(name="sequence", memory=True)
+                seq = py_trees.composites.Sequence(
+                    name="sequence", memory=True
+                    )
                 seq.add_children(nodes)
 
                 tree = py_trees.trees.BehaviourTree(seq)
