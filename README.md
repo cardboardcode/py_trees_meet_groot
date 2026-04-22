@@ -34,6 +34,7 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | Groot | py_trees |
 |-------|----------|
 | Sequence | Sequence with `memory=True` |
+| SequenceStar | Sequence with `memory=True` |
 | ReactiveSequence | Sequence with `memory=False` |
 | Fallback | Selector with `memory=True` |
 | ReactiveFallback | Selector with `memory=False` |
@@ -43,7 +44,6 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | WhileDoElse | Not Available ❌ |
 | SwitchX | Not Available ❌ |
 | ManualSelector | Not Available ❌ |
-| SequenceStar | Sequence with `memory=True` |
 
 
 ### **Decorators to Decorators**
@@ -137,11 +137,13 @@ root = groot_xml.load("GROOT_XML_FILE_TO_LOAD.xml", behaviors=all_behaviors, dec
 ## **Verify**
 
 **Verify the installation** by running a simple test:
+
     ```bash
     python -c "import py_trees_meet_groot; print('Successfully imported  py_trees_meet_groot')"
     ```
 
 You should see the following terminal output:
+
     ```bash
     Successfully imported py_trees_meet_groot
     ```
