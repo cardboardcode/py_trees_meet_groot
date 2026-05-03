@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root BTCPP_format="3"
+<root BTCPP_format="4"
       main_tree_to_execute="BehaviorTree">
   <!-- ////////// -->
   <BehaviorTree ID="BehaviorTree">
@@ -9,15 +9,23 @@
       <Delay delay_msec="4000">
         <AlwaysSuccess/>
       </Delay>
-      <BlackboardCheckInt return_on_mismatch="FAILURE"
-                          value_A="{wp}"
-                          value_B="-2">
+      <Decorator ID="BlackboardCheckInt"
+                 return_on_mismatch="FAILURE"
+                 value_A="{wp}"
+                 value_B="-2">
         <AlwaysSuccess/>
-      </BlackboardCheckInt>
+      </Decorator>
     </Sequence>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
-  <TreeNodesModel/>
+  <TreeNodesModel>
+    <Decorator ID="BlackboardCheckInt"
+               editable="true">
+      <input_port name="return_on_mismatch"/>
+      <input_port name="value_A"/>
+      <input_port name="value_B"/>
+    </Decorator>
+  </TreeNodesModel>
 
 </root>
