@@ -21,7 +21,7 @@ The main purpose of this module is to load an XML file generated with Groot and 
 ## **Verified Compatibilities**
 - **py_trees** `2.4.0` 
 - **Groot2** `1.8.1`
-- **BT.CPP** `3.8`
+- **BT.CPP** `4.8`
 
 > [!WARNING]  
 > **Groot2** `1.9.0` has breaking changes in the `.xml` files it changes.
