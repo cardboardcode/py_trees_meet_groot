@@ -123,11 +123,6 @@ root = groot_xml.load("GROOT_XML_FILE_TO_LOAD.xml", behaviors=all_behaviors, dec
     
     ```
 
-    ```bash
-    python3 -m venv venv
-    venv\Scripts\activate     # On Windows
-    ```
-
 3. **Install** the package in development mode (this installs `py_trees` as a dependency):
    ```bash
    pip install -e .
