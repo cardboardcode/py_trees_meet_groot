@@ -84,30 +84,11 @@ All manually defined Actions and Conditions in Groot have to be defined as py_tr
 The following elements are unsupported right now:
 
 * Decorators with parameters 
-* Connecting the execution of py_trees to Groot 
+* Connecting the execution of py_trees to `Groot2`
 
-## **Example**
-
-```python
-import py_trees
-from py_trees_meet_groot import groot_xml
-
-# Define cusom Behaviors
-behavior1 = py_trees.behaviours.Success(name="behavior1")
-...
-all_behaviors = [behavior1, behavior2, ...]
-
-# Define any non-Groot decorator node
-all_decorators = {}
-one_shot = py_trees.decorators.OneShot
-all_decorators["one_shot"] = one_shot
-...
-
-root = groot_xml.load("GROOT_XML_FILE_TO_LOAD.xml", behaviors=all_behaviors, decorators=all_decorators)
-```
-
-> [!NOTE]  
-> For more examples, please refer to [examples](https://github.com/cardboardcode/py_trees_meet_groot/tree/devel/examples) directory.
+## **Examples**
+  
+Please refer to [examples](https://github.com/cardboardcode/py_trees_meet_groot/tree/devel/examples) directory.
 
 ## **Build From Source**
 
@@ -116,11 +97,10 @@ root = groot_xml.load("GROOT_XML_FILE_TO_LOAD.xml", behaviors=all_behaviors, dec
     git clone https://github.com/cardboardcode/py_trees_meet_groot.git --single-branch --depth 1 --branch devel && cd py_trees_meet_groot
     ```
 
-2. **Create** a virtual environment:
+2. **Create** a `python3` virtual environment:
     ```bash
     python3 -m venv venv
-    source venv/bin/activate  # On Linux/macOS
-    
+    source venv/bin/activate
     ```
 
 3. **Install** the package in development mode (this installs `py_trees` as a dependency):
