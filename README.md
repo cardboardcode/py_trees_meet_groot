@@ -1,5 +1,6 @@
-[![Build](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml/badge.svg)](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+[![Build](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml/badge.svg)](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml)
+
 
 # **Import Groot XML files into py_trees**
 
