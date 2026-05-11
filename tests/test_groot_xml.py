@@ -589,6 +589,110 @@ class TestGrootXML(unittest.TestCase):
         finally:
             os.unlink(xml_file_path)
 
+    def test_repeat_node_parsing(self):
+        """Test parsing of Repeat node mapping."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="4"
+              main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <Sequence>
+              <Repeat num_cycles="3">
+                <Action ID="PrintMessage"
+                        message="Repeat message!"/>
+              </Repeat>
+              <Action ID="PrintMessage"
+                      message="Done repeating!"/>
+            </Sequence>
+          </BehaviorTree>
+
+          <TreeNodesModel>
+            <Action ID="PrintMessage"
+                    editable="true">
+              <input_port name="message"/>
+            </Action>
+          </TreeNodesModel>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [PrintMessage]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            # Capture print output
+            import io
+            from contextlib import redirect_stdout
+
+            ret = []
+
+            nodes = groot_xml.parse_BehaviourTree(
+                bh=behavior_tree,
+                dict_bh=dict_bh,
+                decorators=local_decorators
+            )
+
+            # Find the Repeat node which wraps the PrintMessage action
+            found_repeat = False
+            repeat_decorator = None
+
+            for node in nodes:
+                # Check if node itself is Repeat decorator
+                if hasattr(node, '__class__'):
+                    class_name = node.__class__.__name__
+                    if 'Repeat' in class_name:
+                        found_repeat = True
+                        repeat_decorator = node
+                        if hasattr(node, 'child'):
+                            self.assertIsNotNone(
+                                node.child,
+                                "Repeat should have a child node"
+                            )
+                        break
+                # Check children of composite nodes (like Sequence)
+                if hasattr(node, 'children'):
+                    for child in node.children:
+                        if hasattr(child, '__class__'):
+                            class_name = child.__class__.__name__
+                            if 'Repeat' in class_name:
+                                found_repeat = True
+                                repeat_decorator = child
+                                if hasattr(child, 'child'):
+                                    self.assertIsNotNone(
+                                        child.child,
+                                        "Repeat should have a child node"
+                                    )
+                                break
+                if found_repeat:
+                    break
+
+            self.assertTrue(
+                found_repeat,
+                "Repeat node should be mapped to Repeat decorator"
+            )
+            self.assertIsNotNone(
+                repeat_decorator,
+                "Repeat decorator should be found"
+            )
+            # Verify num_cycles parameter was set correctly
+            expected_num_cycles = 3
+            if hasattr(repeat_decorator, 'num_success'):
+                self.assertEqual(
+                    repeat_decorator.num_success,
+                    expected_num_cycles,
+                    f"Repeat should have num_success={expected_num_cycles}"
+                )
+
+        finally:
+            os.unlink(xml_file_path)
+
     def test_simple_subtree_parsing(self):
         """Test parsing of SubTree node with parameter replacement."""
         xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
