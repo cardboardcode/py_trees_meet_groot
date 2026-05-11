@@ -187,7 +187,32 @@ def parse_BehaviourTree(
             print(node[0])
             # TODO(cardboardcode): Assign unique id for name.
             dec = py_trees.decorators.FailureIsRunning(
-                child=node[0], name="failure_is_running"
+                child=node[0], name=f"failure_is_running_{uuid.uuid4().hex[:4]}"
+            )
+            ret.append(dec)
+        elif str(e.nodeName) == "Repeat":
+            node = parse_BehaviourTree(e, dict_bh, decorators)
+            print(node[0])
+            attrs_dict = attributes_to_dict(e.attributes)
+
+            for key, val in attrs_dict.items():
+                try:
+                    for port_key, port_value in ports.items():
+                        if port_key.upper() in val.upper():
+                            attrs_dict[key] = port_value
+                except Exception:
+                    pass
+
+            if e.getAttribute("num_cycles") != "":
+                num_cycles = e.getAttribute("num_cycles")
+            else:
+                # TODO(cardboardcode): Implement exception to raise here
+                pass
+
+            dec = py_trees.decorators.Repeat(
+                child=node[0],
+                name=f"repeat_{uuid.uuid4().hex[:4]}",
+                num_success=int(num_cycles)
             )
             ret.append(dec)
         # Actions
