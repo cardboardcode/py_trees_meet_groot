@@ -254,6 +254,5 @@ def parse_BehaviourTree(
             seq.add_children(nodes)
             ret.append(seq)
         else:
-            print("Unknown Node: ", name)
             print(f"Unknown Node has Node Name:{str(e.nodeName)}")
     return ret
