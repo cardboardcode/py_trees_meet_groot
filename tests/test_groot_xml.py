@@ -139,6 +139,24 @@ class TestGrootXML(unittest.TestCase):
             mock.children = []
             mock.id = name
 
+    def create_simple_condition(self):
+        """Helper method to create a simple condition behavior."""
+        class SimpleCondition(py_trees.behaviour.Behaviour):
+            def __init__(self, **kwargs):
+                allowed_keys = {"ID"}
+
+                for key, value in kwargs.items():
+                    if key not in allowed_keys:
+                        raise ValueError(f"Unknown parameter: {key}")
+                    setattr(self, key, value)
+
+                name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
+                super().__init__(name)
+
+            def update(self):
+                return py_trees.common.Status.SUCCESS
+        return SimpleCondition
+
     def create_test_xml(self, xml_content):
         """Create a temporary XML file for testing."""
         with tempfile.NamedTemporaryFile(
@@ -477,6 +495,97 @@ class TestGrootXML(unittest.TestCase):
             self.assertIn(
                 "Behavior not found:  UnknownBehavior", output
             )
+        finally:
+            os.unlink(xml_file_path)
+
+    def test_retry_until_successful_node_parsing(self):
+        """Test parsing of RetryUntilSuccessful node mapping."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="4"
+              main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <Sequence>
+              <RetryUntilSuccessful num_attempts="-1">
+                <Inverter>
+                  <Condition ID="SimpleCondition"/>
+                </Inverter>
+              </RetryUntilSuccessful>
+              <Action ID="PrintMessage"
+                      message="Task Complete!"/>
+            </Sequence>
+          </BehaviorTree>
+
+          <TreeNodesModel>
+            <Action ID="PrintMessage"
+                    editable="true">
+              <input_port name="message"/>
+            </Action>
+            <Condition ID="SimpleCondition"
+                       editable="true"/>
+          </TreeNodesModel>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [PrintMessage, self.create_simple_condition()]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            # Capture print output
+            import io
+            from contextlib import redirect_stdout
+
+            ret = []
+
+            nodes = groot_xml.parse_BehaviourTree(
+                bh=behavior_tree,
+                dict_bh=dict_bh,
+                decorators=local_decorators
+            )
+
+            # Find the RetryUntilSuccessful node which maps to FailureIsRunning
+            # Check all nodes and their children for FailureIsRunning decorator
+            found_failure_is_running = False
+            for node in nodes:
+                # Check if node itself is FailureIsRunning
+                if hasattr(node, '__class__'):
+                    if 'FailureIsRunning' in node.__class__.__name__:
+                        found_failure_is_running = True
+                        if hasattr(node, 'child'):
+                            self.assertIsNotNone(
+                                node.child,
+                                "FailureIsRunning should have a child node"
+                            )
+                        break
+                # Check children of composite nodes (like Sequence)
+                if hasattr(node, 'children'):
+                    for child in node.children:
+                        if hasattr(child, '__class__'):
+                            class_name = child.__class__.__name__
+                            if 'FailureIsRunning' in class_name:
+                                found_failure_is_running = True
+                                if hasattr(child, 'child'):
+                                    self.assertIsNotNone(
+                                        child.child,
+                                        "FailureIsRunning should have a child node"
+                                    )
+                                break
+                if found_failure_is_running:
+                    break
+
+            self.assertTrue(
+                found_failure_is_running,
+                "RetryUntilSuccessful should be mapped to FailureIsRunning decorator"
+            )
+
         finally:
             os.unlink(xml_file_path)
 
