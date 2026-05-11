@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Sequence>
+      <RetryUntilSuccessful num_attempts="-1">
+        <Inverter>
+          <Condition ID="SimpleConditionA"/>
+        </Inverter>
+      </RetryUntilSuccessful>
+      <Action ID="PrintMessage"
+              message="Task Complete!"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="PrintMessage"
+            editable="true">
+      <input_port name="message"/>
+    </Action>
+    <Condition ID="SimpleConditionA"
+               editable="true"/>
+  </TreeNodesModel>
+
+</root>

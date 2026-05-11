@@ -182,6 +182,14 @@ def parse_BehaviourTree(
             node = parse_BehaviourTree(e, dict_bh, decorators)
             dec = decorators[id](name=name, child=node[0])
             ret.append(dec)
+        elif str(e.nodeName) == "RetryUntilSuccessful":
+            node = parse_BehaviourTree(e, dict_bh, decorators)
+            print(node[0])
+            # TODO(cardboardcode): Assign unique id for name.
+            dec = py_trees.decorators.FailureIsRunning(
+                child=node[0], name="failure_is_running"
+            )
+            ret.append(dec)
         # Actions
         elif str(e.nodeName) == "SetBlackboard":
             output_key = e.getAttribute("output_key")
