@@ -311,6 +311,26 @@ def parse_BehaviourTree(
             ret.append(py_trees.behaviours.Success())
         elif str(e.nodeName) == "AlwaysFailure":
             ret.append(py_trees.behaviours.Failure())
+        elif str(e.nodeName) == "Sleep":
+
+            attrs_dict = attributes_to_dict(e.attributes)
+
+            for key, val in attrs_dict.items():
+                try:
+                    for port_key, port_value in ports.items():
+                        if port_key.upper() in val.upper():
+                            attrs_dict[key] = port_value
+                except Exception:
+                    pass
+
+            if e.getAttribute("msec") != "":
+                msec = int(e.getAttribute("msec"))
+
+            ret.append(py_trees.timers.Timer(
+                    name=f"timer_{uuid.uuid4().hex[:4]}",
+                    duration=msec/1000
+                )
+            )
         elif str(e.nodeName) == "SubTree":
             if e.getAttribute("name") != "":
                 name = e.getAttribute("name")
