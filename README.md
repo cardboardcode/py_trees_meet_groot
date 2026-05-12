@@ -51,14 +51,18 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 
 | Groot | py_trees |
 |-------|----------|
-| Timeout | Timeout |
+| Delay | Sequence + Timer |
 | ForceFailure | SuccessIsFailure |
 | ForceSuccess | FailureIsSuccess |
 | Inverter | Inverter | 
 | KeepRunningUntilFailure | SuccessIsRunning |
+| LoopDouble | Not Available ❌ |
+| LoopString | Not Available ❌ |
+| Precondition | Not Available ❌ |
 | Repeat | Retry |
 | RetryUntilSuccessful | FailureIsRunning |
-| Delay | Sequence + Timer |
+| Timeout | Timeout |
+| RunOnce | Not Available ❌ |
 | User defined Decorator | Decorator in `decorators` |
 
 Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackboard`, `FailureIsRunning`, `RunningIsSuccess`... or newly created by the user, must be added in the `decorators` dictionary and pass to the `load` function to be used.
@@ -70,7 +74,10 @@ Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackbo
 |-------|----------|
 | AlwaysFailure | Failure |
 | AlwaysSuccess | Success |
+| Script | Not Available ❌  |
 | SetBlackBoard | SetBlackboardVariable `output_key=value` |
+| Sleep | Not Available ❌  |
+| ScriptCondition | Not Available ❌  |
 | user defined Action | Behavior in `user_behaviors` |
 | user defined Condition | Behavior in `user_behaviors` |
 
@@ -81,7 +88,6 @@ All manually defined Actions and Conditions in Groot have to be defined as py_tr
 
 The following elements are unsupported right now:
 
-* Decorators with parameters 
 * Connecting the execution of py_trees to `Groot2`
 
 ## **Examples**
