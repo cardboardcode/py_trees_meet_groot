@@ -76,7 +76,7 @@ Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackbo
 | AlwaysSuccess | Success |
 | Script | Not Available ❌  |
 | SetBlackBoard | SetBlackboardVariable `output_key=value` |
-| Sleep | Not Available ❌  |
+| Sleep | Timer  |
 | ScriptCondition | Not Available ❌  |
 | user defined Action | Behavior in `user_behaviors` |
 | user defined Condition | Behavior in `user_behaviors` |
