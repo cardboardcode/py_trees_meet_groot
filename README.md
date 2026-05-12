@@ -53,7 +53,6 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | ForceFailure | SuccessIsFailure |
 | ForceSuccess | FailureIsSuccess |
 | Inverter | Inverter | 
-| BlackboardCheckX | *EternalGuard?* | 
 | KeepRunningUntilFailure | SuccessIsRunning |
 | Repeat | Retry |
 | RetryUntilSuccessful | FailureIsRunning |
