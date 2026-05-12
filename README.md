@@ -57,7 +57,7 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 | KeepRunningUntilFailure | *Condition?* |
 | Repeat | Retry |
 | RetryUntilSuccessful | FailureIsRunning |
-| Delay | Timer |
+| Delay | Sequence + Timer |
 | User defined Decorator | Decorator in `decorators` |
 
 Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackboard`, `FailureIsRunning`, `RunningIsSuccess`... or newly created by the user, must be added in the `decorators` dictionary and pass to the `load` function to be used.
