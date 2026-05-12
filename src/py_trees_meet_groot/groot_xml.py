@@ -218,6 +218,42 @@ def parse_BehaviourTree(
                 num_success=int(num_cycles)
             )
             ret.append(dec)
+        elif str(e.nodeName) == "Delay":
+            node = parse_BehaviourTree(e, dict_bh, decorators)
+            print(f"Delay, node = {node}")
+            print(node[0])
+            attrs_dict = attributes_to_dict(e.attributes)
+            print(f"attrs_dict = {attrs_dict}")
+
+            for key, val in attrs_dict.items():
+                try:
+                    for port_key, port_value in ports.items():
+                        if port_key.upper() in val.upper():
+                            attrs_dict[key] = port_value
+                except Exception:
+                    pass
+
+            if e.getAttribute("delay_msec") != "":
+                delay_msec = int(e.getAttribute("delay_msec"))
+            else:
+                # TODO(cardboardcode): Implement exception to raise here
+                pass
+
+            print(f"delay_msecs = {delay_msec}")
+
+            inner_sequence = py_trees.composites.Sequence(
+                name=f"timer_seq_{uuid.uuid4().hex[:4]}",
+                memory=True
+            )
+            inner_sequence.add_children([
+                py_trees.timers.Timer(
+                    name=f"timer_{uuid.uuid4().hex[:4]}",
+                    duration=delay_msec/1000
+                ),
+                node[0]
+            ])
+
+            ret.append(inner_sequence)
         # Actions
         elif str(e.nodeName) == "SetBlackboard":
             output_key = e.getAttribute("output_key")
