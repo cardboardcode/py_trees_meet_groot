@@ -4,9 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "py_trees_meet_groot"
-version = "0.2"
+version = "0.2.1a"
 authors = [
   { name="Narcis Palomeras", email="narcispr@gmail.com" },
+  { name="Bey Hao Yun", email="beyhy94@gmail.com" },
 ]
 description = "Library to load XML behavior trees done using Groot GUI (https://github.com/BehaviorTree/Groot) into the py_trees library (https://github.com/splintered-reality/py_trees)"
 readme = "README.md"
@@ -21,5 +22,5 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/narcispr/py_trees_meet_groot"
+"Homepage" = "https://github.com/cardboardcode/py_trees_meet_groot"
 "Bug Tracker" = "https://github.com/pypa/py_trees_meet_groot/issues"
