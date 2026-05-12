@@ -786,6 +786,86 @@ class TestGrootXML(unittest.TestCase):
         finally:
             os.unlink(xml_file_path)
 
+    def test_keep_running_until_failure_node_parsing(self):
+        """Test parsing of KeepRunningUntilFailure node mapping."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="4"
+              main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <Fallback>
+              <KeepRunningUntilFailure>
+                <Condition ID="SimpleConditionA"/>
+              </KeepRunningUntilFailure>
+              <Action ID="PrintMessage"
+                      message="Task has failed!"/>
+            </Fallback>
+          </BehaviorTree>
+
+          <TreeNodesModel>
+            <Action ID="PrintMessage"
+                    editable="true">
+              <input_port name="message"/>
+            </Action>
+            <Condition ID="SimpleConditionA"
+                       editable="true"/>
+          </TreeNodesModel>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [PrintMessage, SimpleConditionA]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            # Capture print output
+            import io
+            from contextlib import redirect_stdout
+
+            nodes = groot_xml.parse_BehaviourTree(
+                bh=behavior_tree,
+                dict_bh=dict_bh,
+                decorators=local_decorators
+            )
+
+            # The parse_BehaviourTree function returns a list of nodes
+            # The KeepRunningUntilFailure is wrapped in a Fallback (Selector)
+            # and should contain a SuccessIsRunning decorator
+            self.assertTrue(len(nodes) > 0, "Should have parsed at least one node")
+
+            # Navigate to the actual Decorator nodes
+            def find_success_is_running(node):
+                """Recursively search for SuccessIsRunning decorator"""
+                # Check current node
+                if hasattr(node, '__class__'):
+                    if 'SuccessIsRunning' in node.__class__.__name__:
+                        return True
+                # Check children
+                if hasattr(node, 'children'):
+                    for child in node.children:
+                        if find_success_is_running(child):
+                            return True
+                return False
+
+            found_success_is_running = False
+            for node in nodes:
+                found_success_is_running = find_success_is_running(node)
+
+            self.assertTrue(
+                found_success_is_running,
+                "KeepRunningUntilFailure should be mapped to SuccessIsRunning decorator"
+            )
+
+        finally:
+            os.unlink(xml_file_path)
+
     def test_unknown_node_raises_exception(self):
         """Test that UnknownNodeError is raised for unsupported node types."""
         xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
