@@ -32,17 +32,19 @@ BehaviorTree.CPP and py_trees use different control sequences, decorators and tr
 
 | Groot | py_trees |
 |-------|----------|
-| Sequence | Sequence with `memory=True` |
-| SequenceStar | Sequence with `memory=True` |
-| ReactiveSequence | Sequence with `memory=False` |
+| AsyncFallback | Not Available ❌ |
+| AsyncSequence | Not Available ❌ |
 | Fallback | Selector with `memory=True` |
-| ReactiveFallback | Selector with `memory=False` |
+| IfThenElse | Not Available ❌ |
 | Parallel with `success_threshold=1` | Parallel with `policy=SuccessOnOne` |
 | Parallel with `success_threshold <> 1` | Parallel with `policy=SuccessOnAll` |
-| IfThenElse | Not Available ❌ |
-| WhileDoElse | Not Available ❌ |
+| ParallelAll | Not Available ❌ |
+| ReactiveFallback | Selector with `memory=False` |
+| ReactiveSequence | Sequence with `memory=False` |
+| Sequence | Sequence with `memory=True` |
+| SequenceWithMemory | Sequence with `memory=True` |
 | SwitchX | Not Available ❌ |
-| ManualSelector | Not Available ❌ |
+| WhileDoElse | Not Available ❌ |
 
 
 ### **Decorators to Decorators**
