@@ -7,6 +7,7 @@ import tempfile
 import time
 from unittest.mock import patch, MagicMock
 from py_trees_meet_groot import groot_xml
+from py_trees_meet_groot.exceptions import UnknownNodeError
 import py_trees
 
 
@@ -782,6 +783,54 @@ class TestGrootXML(unittest.TestCase):
             self.assertIn("Goodbye Sub-World!", output)
             self.assertIn("Hello again, Sub-World!", output)
             self.assertIn("Goodbye again, Sub-World!", output)
+        finally:
+            os.unlink(xml_file_path)
+
+    def test_unknown_node_raises_exception(self):
+        """Test that UnknownNodeError is raised for unsupported node types."""
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <root BTCPP_format="4"
+              main_tree_to_execute="BehaviorTree">
+          <BehaviorTree ID="BehaviorTree">
+            <Sequence>
+              <UnknownNode delay_msec="5000">
+                <Action ID="PrintMessage"
+                        message="Hello World!"/>
+              </UnknownNode>
+            </Sequence>
+          </BehaviorTree>
+
+          <TreeNodesModel>
+            <Action ID="PrintMessage"
+                    editable="true">
+              <input_port name="message"/>
+            </Action>
+          </TreeNodesModel>
+        </root>'''
+
+        xml_file_path = self.create_test_xml(xml_content)
+        try:
+            doc = self.parse_with_minidom(xml_file_path)
+            behavior_tree = doc.getElementsByTagName("BehaviorTree")[0]
+
+            local_behaviors = [PrintMessage]
+            dict_bh = {}
+            for bh in local_behaviors:
+                if not isinstance(bh, py_trees.behaviour.Behaviour):
+                    dict_bh[bh.__name__] = bh
+                else:
+                    dict_bh[bh.name] = bh
+            local_decorators = {}
+
+            with self.assertRaises(UnknownNodeError) as context:
+                groot_xml.parse_BehaviourTree(
+                    bh=behavior_tree,
+                    dict_bh=dict_bh,
+                    decorators=local_decorators
+                )
+
+            # Verify error message contains the unknown node name
+            self.assertIn('UnknownNode', str(context.exception))
         finally:
             os.unlink(xml_file_path)
 

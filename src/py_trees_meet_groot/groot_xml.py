@@ -3,6 +3,7 @@ from xml.dom.minidom import parse, Element
 import uuid
 import py_trees
 import inspect
+from .exceptions import UnknownNodeError
 
 
 def attributes_to_dict(attributes):
@@ -290,6 +291,5 @@ def parse_BehaviourTree(
             ret.append(seq)
         else:
             print(f"Unknown Node has Node Name:{str(e.nodeName)}")
-            # TODO(cardboardcode): Implement exception to raise here
-            pass
+            raise UnknownNodeError(node_name=str(e.nodeName), xml_element=e)
     return ret
