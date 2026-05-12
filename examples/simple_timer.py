@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     # DEBUG
     # Visualise parsed BT Groot xml file as py_trees components.
-    print(py_trees.display.ascii_tree(root))
-    py_trees.display.render_dot_tree(root)  # render behavior tree
+    # print(py_trees.display.ascii_tree(root))
+    # py_trees.display.render_dot_tree(root)  # render behavior tree
 
     py_trees.logging.level = py_trees.logging.Level.DEBUG
     root.setup_with_descendants()
