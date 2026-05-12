@@ -145,24 +145,26 @@ def parse_BehaviourTree(
         elif str(e.nodeName) == "ForceFailure":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
-            # TODO(cardboardcode): Assign unique id for name.
             dec = py_trees.decorators.SuccessIsFailure(
-                child=node[0], name="success_is_failure"
+                child=node[0],
+                name=f"success_is_failure_{uuid.uuid4().hex[:4]}"
             )
             ret.append(dec)
         elif str(e.nodeName) == "ForceSuccess":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
-            # TODO(cardboardcode): Assign unique id for name.
             dec = py_trees.decorators.FailureIsSuccess(
-                child=node[0], name="failure_is_success"
+                child=node[0],
+                name=f"failure_is_success_{uuid.uuid4().hex[:4]}"
             )
             ret.append(dec)
         elif str(e.nodeName) == "Inverter":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
-            # TODO(cardboardcode): Assign unique id for name.
-            dec = py_trees.decorators.Inverter(child=node[0], name="inverter")
+            dec = py_trees.decorators.Inverter(
+                child=node[0],
+                name=f"inverter_{uuid.uuid4().hex[:4]}"
+            )
             ret.append(dec)
         elif str(e.nodeName) == "Decorator":
             id = e.getAttribute("ID")
@@ -185,9 +187,9 @@ def parse_BehaviourTree(
         elif str(e.nodeName) == "RetryUntilSuccessful":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
-            # TODO(cardboardcode): Assign unique id for name.
             dec = py_trees.decorators.FailureIsRunning(
-                child=node[0], name=f"failure_is_running_{uuid.uuid4().hex[:4]}"
+                child=node[0],
+                name=f"failure_is_running_{uuid.uuid4().hex[:4]}"
             )
             ret.append(dec)
         elif str(e.nodeName) == "Repeat":
@@ -288,4 +290,6 @@ def parse_BehaviourTree(
             ret.append(seq)
         else:
             print(f"Unknown Node has Node Name:{str(e.nodeName)}")
+            # TODO(cardboardcode): Implement exception to raise here
+            pass
     return ret
