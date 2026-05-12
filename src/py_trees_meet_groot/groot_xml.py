@@ -193,6 +193,14 @@ def parse_BehaviourTree(
                 name=f"failure_is_running_{uuid.uuid4().hex[:4]}"
             )
             ret.append(dec)
+        elif str(e.nodeName) == "KeepRunningUntilFailure":
+            node = parse_BehaviourTree(e, dict_bh, decorators)
+            print(node[0])
+            dec = py_trees.decorators.SuccessIsRunning(
+                child=node[0],
+                name=f"success_is_running_{uuid.uuid4().hex[:4]}"
+            )
+            ret.append(dec)
         elif str(e.nodeName) == "Repeat":
             node = parse_BehaviourTree(e, dict_bh, decorators)
             print(node[0])
@@ -238,8 +246,6 @@ def parse_BehaviourTree(
             else:
                 # TODO(cardboardcode): Implement exception to raise here
                 pass
-
-            print(f"delay_msecs = {delay_msec}")
 
             inner_sequence = py_trees.composites.Sequence(
                 name=f"timer_seq_{uuid.uuid4().hex[:4]}",
