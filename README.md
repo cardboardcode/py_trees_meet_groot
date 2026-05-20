@@ -1,7 +1,7 @@
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-[![Build](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml/badge.svg)](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml)
+<img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" height="25">
+<img src="https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml/badge.svg" height="25">
 
-## **Quickstart** :rocket:
+## **Quick Start** :rocket:
 
 ```bash
 pip install git+https://github.com/cardboardcode/py_trees_meet_groot@v0.0.1a
