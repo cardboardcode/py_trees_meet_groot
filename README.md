@@ -1,12 +1,20 @@
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 [![Build](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml/badge.svg)](https://github.com/cardboardcode/py_trees_meet_groot/actions/workflows/ci.yml)
 
+## **Quickstart** :rocket:
+
+```bash
+
+```
 
 # **Import Groot XML files into py_trees**
 
-[Groot](https://github.com/BehaviorTree/Groot) is a Graphical Editor, written in C++ and Qt, to create BehaviorTrees. It is only compatible with [BehaviorTree.CPP](https://github.com/BehaviorTree/BehaviorTree.CPP). This module is an attempt to use Groot to generate trees using [py_trees](https://github.com/splintered-reality/py_trees) instead of BehaviorTree.CPP.
+[Groot2](https://github.com/BehaviorTree/Groot2) is a Graphical Editor, written in C++ and Qt, to create BehaviorTrees. It is only compatible with [BehaviorTree.CPP](https://github.com/BehaviorTree/BehaviorTree.CPP). This module is an attempt to use Groot to generate trees using [py_trees](https://github.com/splintered-reality/py_trees) instead of BehaviorTree.CPP.
 
-The main purpose of this module is to load an XML file generated with Groot and transform it into a valid `py_trees` behavior tree. Execution of `py_trees` behavior trees is not connected to Groot for the moment.
+The main purpose of this module is to load an XML file generated with Groot and transform it into a valid `py_trees` behavior tree. 
+
+> [!WARNING]
+> Execution of `py_trees` behavior trees is not connected to Groot for the moment.
 
 <table>
     <tr>
@@ -94,7 +102,7 @@ The following elements are unsupported right now:
   
 Please refer to [examples](https://github.com/cardboardcode/py_trees_meet_groot/tree/devel/examples) directory.
 
-## **Build From Source**
+## **Build From Source** :hammer:
 
 1. **Download** the repository:
     ```bash
@@ -115,7 +123,7 @@ Please refer to [examples](https://github.com/cardboardcode/py_trees_meet_groot/
 > [!WARNING]  
 > Do not use `pip install py_trees_meet_groot` since this implementation is not yet aligned with what is published on pip.
 
-## **Verify**
+## **Verify** :heavy_check_mark:
 
 **Verify the installation** by running a simple test:
 
