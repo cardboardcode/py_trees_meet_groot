@@ -92,7 +92,7 @@ Additional py_trees decorators, both core defined as `OneShot`, `StatusToBlackbo
 
 All manually defined Actions and Conditions in Groot have to be defined as py_trees `behaviors` and added into the `behaviors` list in function `load` to be used.
 
-## **Unsupported Elements**
+## **Unsupported Elements** :warning:
 
 The following elements are unsupported right now:
 
