@@ -106,7 +106,7 @@ Please refer to [examples](https://github.com/cardboardcode/py_trees_meet_groot/
 
 1. **Download** the repository:
     ```bash
-    git clone https://github.com/cardboardcode/py_trees_meet_groot.git --single-branch --depth 1 --branch devel && cd py_trees_meet_groot
+    git clone https://github.com/cardboardcode/py_trees_meet_groot.git --single-branch --depth 1 --branch v0.0.1a && cd py_trees_meet_groot
     ```
 
 2. **Create** a `python3` virtual environment:
