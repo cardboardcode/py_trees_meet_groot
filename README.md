@@ -4,7 +4,7 @@
 ## **Quickstart** :rocket:
 
 ```bash
-
+pip install git+https://github.com/cardboardcode/py_trees_meet_groot@v0.0.1a
 ```
 
 # **Import Groot XML files into py_trees**
