@@ -29,7 +29,7 @@ if __name__ == "__main__":
     all_behaviors = [PrintMessage]
 
     root = groot_xml.load(
-        "xml/test11.xml", behaviors=all_behaviors
+        "xml/simple_timer.xml", behaviors=all_behaviors
     )
 
     if root is None:

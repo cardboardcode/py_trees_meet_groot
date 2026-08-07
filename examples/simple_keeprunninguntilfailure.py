@@ -54,7 +54,7 @@ if __name__ == "__main__":
     all_behaviors = [PrintMessage, SimpleConditionA]
 
     root = groot_xml.load(
-        "xml/test12.xml", behaviors=all_behaviors
+        "xml/simple_keeprunninguntilfailure.xml", behaviors=all_behaviors
     )
 
     blackboard.register_key(

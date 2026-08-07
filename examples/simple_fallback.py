@@ -50,7 +50,7 @@ class PrintMessage(py_trees.behaviour.Behaviour):
 if __name__ == "__main__":
     all_behaviors = [PrintMessage, SimpleCondition]
 
-    root = groot_xml.load("xml/test4.xml", behaviors=all_behaviors)
+    root = groot_xml.load("xml/simple_fallback.xml", behaviors=all_behaviors)
 
     if root is None:
         print("Failed to load Groot BT .xml file")

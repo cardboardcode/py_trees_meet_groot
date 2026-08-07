@@ -48,7 +48,7 @@ if __name__ == "__main__":
     all_behaviors = [Wait]
 
     root = groot_xml.load(
-        "xml/test8.xml", behaviors=all_behaviors
+        "xml/simple_timeout.xml", behaviors=all_behaviors
     )
 
     if root is None:

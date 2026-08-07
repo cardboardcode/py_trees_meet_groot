@@ -6,7 +6,7 @@ from py_trees_meet_groot import groot_xml
 
 if __name__ == "__main__":
     # Load Groot XML behavior tree
-    root = groot_xml.load("xml/test2.xml")
+    root = groot_xml.load("xml/set_blackboard_value.xml")
 
     # DEBUG
     # Visualise parsed BT Groot xml file as py_trees components.

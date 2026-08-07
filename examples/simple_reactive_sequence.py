@@ -117,7 +117,7 @@ if __name__ == "__main__":
     all_behaviors = [PrintMessage, SimpleConditionA, SimpleConditionB, Wait]
 
     root = groot_xml.load(
-        "xml/test5.xml", behaviors=all_behaviors
+        "xml/simple_reactive_sequence.xml", behaviors=all_behaviors
     )
 
     blackboard.register_key(

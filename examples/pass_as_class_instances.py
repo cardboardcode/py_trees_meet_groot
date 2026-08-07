@@ -22,7 +22,7 @@ all_behaviors = [
 
 if __name__ == "__main__":
     # Load Groot XML behavior tree
-    root = groot_xml.load("xml/test1.xml", behaviors=all_behaviors)
+    root = groot_xml.load("xml/pass_as_class_instances.xml", behaviors=all_behaviors)
 
     # DEBUG
     # Visualise parsed BT Groot xml file as py_trees components.

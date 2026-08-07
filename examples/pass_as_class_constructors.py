@@ -66,7 +66,7 @@ class PrintMessage(py_trees.behaviour.Behaviour):
 if __name__ == "__main__":
     all_behaviors = [PrintMessage, Wait]
 
-    root = groot_xml.load("xml/test3.xml", behaviors=all_behaviors)
+    root = groot_xml.load("xml/pass_as_class_constructors.xml", behaviors=all_behaviors)
 
     if root is None:
         print("Failed to load Groot BT .xml file")
