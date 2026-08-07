@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="BehaviorTree">
+  <!-- ////////// -->
+  <BehaviorTree ID="BehaviorTree">
+    <Sequence>
+      <SetBlackboard value="-2"
+                     output_key="wp"/>
+      <SubTree ID="ConditionalPrintMessageTree"
+               msg_target_2="Goodbye Sub-World!"
+               msg_target_1="Hello Sub-World!"
+               key_name="wp"
+               _autoremap="true"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- ////////// -->
+  <BehaviorTree ID="ConditionalPrintMessageTree">
+    <Sequence>
+      <Action ID="PrintMessage"
+              message="{msg_target_1}"/>
+      <Condition ID="DoesBlackboardValueExist"
+                 key_name="{key_name}"/>
+      <Action ID="PrintMessage"
+              message="{msg_target_2}"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Condition ID="DoesBlackboardValueExist"
+               editable="true">
+      <input_port name="key_name"
+                  type="std::string"/>
+    </Condition>
+    <Action ID="PrintMessage"
+            editable="true">
+      <input_port name="message"
+                  type="std::string"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
