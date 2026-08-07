@@ -1,5 +1,6 @@
 from xml.dom.minidom import parse, Element
 
+import re
 import uuid
 import py_trees
 import inspect
@@ -135,8 +136,7 @@ def parse_BehaviourTree(
 
         # Decorators
         elif str(e.nodeName) == "Timeout":
-            node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(node[0])
+            node = parse_BehaviourTree(e, dict_bh, decorators, ports=ports)
             dec = py_trees.decorators.Timeout(
                 child=node[0],
                 name=f"timeout_{uuid.uuid4().hex[:4]}",
@@ -145,7 +145,6 @@ def parse_BehaviourTree(
             ret.append(dec)
         elif str(e.nodeName) == "ForceFailure":
             node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(node[0])
             dec = py_trees.decorators.SuccessIsFailure(
                 child=node[0],
                 name=f"success_is_failure_{uuid.uuid4().hex[:4]}"
@@ -153,7 +152,6 @@ def parse_BehaviourTree(
             ret.append(dec)
         elif str(e.nodeName) == "ForceSuccess":
             node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(node[0])
             dec = py_trees.decorators.FailureIsSuccess(
                 child=node[0],
                 name=f"failure_is_success_{uuid.uuid4().hex[:4]}"
@@ -161,7 +159,6 @@ def parse_BehaviourTree(
             ret.append(dec)
         elif str(e.nodeName) == "Inverter":
             node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(node[0])
             dec = py_trees.decorators.Inverter(
                 child=node[0],
                 name=f"inverter_{uuid.uuid4().hex[:4]}"
@@ -186,8 +183,7 @@ def parse_BehaviourTree(
             dec = decorators[id](name=name, child=node[0])
             ret.append(dec)
         elif str(e.nodeName) == "RetryUntilSuccessful":
-            node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(node[0])
+            node = parse_BehaviourTree(e, dict_bh, decorators, ports=ports)
             dec = py_trees.decorators.FailureIsRunning(
                 child=node[0],
                 name=f"failure_is_running_{uuid.uuid4().hex[:4]}"
@@ -195,15 +191,13 @@ def parse_BehaviourTree(
             ret.append(dec)
         elif str(e.nodeName) == "KeepRunningUntilFailure":
             node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(node[0])
             dec = py_trees.decorators.SuccessIsRunning(
                 child=node[0],
                 name=f"success_is_running_{uuid.uuid4().hex[:4]}"
             )
             ret.append(dec)
         elif str(e.nodeName) == "Repeat":
-            node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(node[0])
+            node = parse_BehaviourTree(e, dict_bh, decorators, ports=ports)
             attrs_dict = attributes_to_dict(e.attributes)
 
             for key, val in attrs_dict.items():
@@ -228,10 +222,7 @@ def parse_BehaviourTree(
             ret.append(dec)
         elif str(e.nodeName) == "Delay":
             node = parse_BehaviourTree(e, dict_bh, decorators)
-            print(f"Delay, node = {node}")
-            print(node[0])
             attrs_dict = attributes_to_dict(e.attributes)
-            print(f"attrs_dict = {attrs_dict}")
 
             for key, val in attrs_dict.items():
                 try:
@@ -274,16 +265,28 @@ def parse_BehaviourTree(
             ret.append(set_blackboard)
         elif str(e.nodeName) == "Action" or str(e.nodeName) == "Condition":
 
+            # Check if Action/Condition is in a subtree.
+            # If true, map port_value to subtree inputs accordingly.
+            if subtrees is not None:
+                print(f"inside [Action/Condition] ports = {ports}")
+
             attrs_dict = attributes_to_dict(e.attributes)
 
             for key, val in attrs_dict.items():
                 try:
-                    for port_key, port_value in ports.items():
-                        if port_key.upper() in val.upper():
-                            attrs_dict[key] = port_value
-                except Exception:
+                    if ports is not None:
+                        # Look for any matching port key of the node itself
+                        # to any passed ports from subtree if any.
+                        for port_key, port_value in ports.items():
+                            if ports["_autoremap"]:
+                                if port_key.upper() in val.upper():
+                                    attrs_dict[key] = port_value
+                except Exception as error:
+                    print(f"{error}")
                     pass
 
+            # Assign Action/Condition name based on properties,
+            # name or ID as defined in xml.
             if e.getAttribute("name") != "":
                 name = e.getAttribute("name")
             else:
