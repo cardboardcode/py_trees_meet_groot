@@ -1,6 +1,5 @@
 from xml.dom.minidom import parse, Element
 
-import re
 import uuid
 import py_trees
 import inspect
