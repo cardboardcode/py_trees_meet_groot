@@ -1,7 +1,9 @@
 import operator
 import py_trees
 import time
+
 from py_trees_meet_groot import groot_xml
+
 
 # Define Groot Actions and Conditions as py_trees Behaviors
 check_door_close = py_trees.behaviours.CheckBlackboardVariableValue(

@@ -1,53 +1,10 @@
 import py_trees
 import time
-import uuid
 import sys
 
 from py_trees_meet_groot import groot_xml
-
-blackboard = py_trees.blackboard.Client(name="Global")
-
-
-class SimpleConditionA(py_trees.behaviour.Behaviour):
-    def __init__(self, **kwargs):
-        allowed_keys = {"ID"}
-
-        for key, value in kwargs.items():
-            if key not in allowed_keys:
-                raise ValueError(f"Unknown parameter: {key}")
-            setattr(self, key, value)
-
-        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
-        super().__init__(name)
-
-    def update(self):
-        print(
-            f"[{self.name}][is_A_true] "
-            f"- {blackboard.is_A_true}"
-        )
-
-        if blackboard.is_A_true:
-            return py_trees.common.Status.SUCCESS
-        else:
-            return py_trees.common.Status.FAILURE
-
-class PrintMessage(py_trees.behaviour.Behaviour):
-    def __init__(self, **kwargs):
-        allowed_keys = {"ID", "message"}
-
-        for key, value in kwargs.items():
-            if key not in allowed_keys:
-                raise ValueError(f"Unknown parameter: {key}")
-            setattr(self, key, value)
-
-        self.message = getattr(self, "message", "Insert message here.")
-
-        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
-        super().__init__(name)
-
-    def update(self):
-        print(self.message)
-        return py_trees.common.Status.SUCCESS
+from nodes.bt_action_node import PrintMessage
+from nodes.bt_condition_node import SimpleConditionA
 
 
 if __name__ == "__main__":
@@ -57,6 +14,8 @@ if __name__ == "__main__":
         "xml/simple_retryutilsuccessful.xml", behaviors=all_behaviors
     )
 
+    # Register is_A_true key to blackboard.
+    blackboard = py_trees.blackboard.Client(name="Global")
     blackboard.register_key(
         key="is_A_true",
         access=py_trees.common.Access.WRITE,

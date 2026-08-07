@@ -1,28 +1,9 @@
 import py_trees
 import time
-import uuid
 import sys
 
 from py_trees_meet_groot import groot_xml
-
-
-class PrintMessage(py_trees.behaviour.Behaviour):
-    def __init__(self, **kwargs):
-        allowed_keys = {"ID", "message"}
-
-        for key, value in kwargs.items():
-            if key not in allowed_keys:
-                raise ValueError(f"Unknown parameter: {key}")
-            setattr(self, key, value)
-
-        self.message = getattr(self, "message", "Insert message here.")
-
-        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
-        super().__init__(name)
-
-    def update(self):
-        print(self.message)
-        return py_trees.common.Status.SUCCESS
+from nodes.bt_action_node import PrintMessage
 
 
 if __name__ == "__main__":
@@ -52,6 +33,6 @@ if __name__ == "__main__":
         state = tree.root.status.value
         print(f"Tree Result: {state}")
 
-        if state == "SUCCESS":
+        if state == "SUCCESS" or state == "FAILURE":
             break
         time.sleep(1)

@@ -1,116 +1,10 @@
 import py_trees
 import time
-import uuid
 import sys
 
 from py_trees_meet_groot import groot_xml
-
-blackboard = py_trees.blackboard.Client(name="Global")
-
-
-class SimpleConditionA(py_trees.behaviour.Behaviour):
-    def __init__(self, **kwargs):
-        allowed_keys = {"ID"}
-
-        for key, value in kwargs.items():
-            if key not in allowed_keys:
-                raise ValueError(f"Unknown parameter: {key}")
-            setattr(self, key, value)
-
-        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
-        super().__init__(name)
-
-    def update(self):
-        print(
-            f"[{self.name}][is_A_true] "
-            f"- {blackboard.is_A_true}"
-        )
-
-        if blackboard.is_A_true:
-            return py_trees.common.Status.SUCCESS
-        else:
-            return py_trees.common.Status.FAILURE
-
-
-class SimpleConditionB(py_trees.behaviour.Behaviour):
-    def __init__(self, **kwargs):
-        allowed_keys = {"ID"}
-
-        for key, value in kwargs.items():
-            if key not in allowed_keys:
-                raise ValueError(f"Unknown parameter: {key}")
-            setattr(self, key, value)
-
-        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
-        super().__init__(name)
-
-    def update(self):
-        print(
-            f"[{self.name}][is_B_true] "
-            f"- {blackboard.is_B_true}"
-        )
-
-        if blackboard.is_B_true:
-            return py_trees.common.Status.SUCCESS
-        else:
-            return py_trees.common.Status.FAILURE
-
-
-class PrintMessage(py_trees.behaviour.Behaviour):
-    def __init__(self, **kwargs):
-        allowed_keys = {"ID", "message"}
-
-        for key, value in kwargs.items():
-            if key not in allowed_keys:
-                raise ValueError(f"Unknown parameter: {key}")
-            setattr(self, key, value)
-
-        self.message = getattr(self, "message", "Insert message here.")
-
-        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
-        super().__init__(name)
-
-    def update(self):
-        print(self.message)
-        return py_trees.common.Status.SUCCESS
-
-
-class Wait(py_trees.behaviour.Behaviour):
-    def __init__(self, **kwargs):
-        allowed_keys = {"ID", "seconds"}
-
-        for key, value in kwargs.items():
-            if key not in allowed_keys:
-                raise ValueError(f"Unknown parameter: {key}")
-            setattr(self, key, value)
-
-        raw_value = getattr(self, "seconds", 10)
-        self.duration = int(raw_value)
-
-        name = f"{self.__class__.__name__}_{uuid.uuid4().hex[:4]}"
-        super().__init__(name)
-        self.start_time = None
-
-    def update(self):
-        # Initialize the start time on the first tick
-        if self.start_time is None:
-            print(f"[{self.name}] Starting timer for {self.duration}s...")
-            self.start_time = time.time()
-
-        # Calculate how much time has passed
-        elapsed = time.time() - self.start_time
-
-        if elapsed >= self.duration:
-            print(f"[{self.name}] Time elapsed! ({self.duration}s)")
-            # Reset start_time so behavior can be reused later
-            self.start_time = None
-            return py_trees.common.Status.SUCCESS
-
-        # While waiting, we return RUNNING
-        # We print the remaining time just to show it's working in the console
-        remaining = int(self.duration - elapsed)
-        print(f"[{self.name}] Waiting... {remaining}s remaining")
-        return py_trees.common.Status.RUNNING
+from nodes.bt_action_node import PrintMessage, Wait
+from nodes.bt_condition_node import SimpleConditionA, SimpleConditionB
 
 
 if __name__ == "__main__":
@@ -120,6 +14,8 @@ if __name__ == "__main__":
         "xml/simple_reactive_sequence.xml", behaviors=all_behaviors
     )
 
+    # Register is_A_true and is_B_true keys to blackboard.
+    blackboard = py_trees.blackboard.Client(name="Global")
     blackboard.register_key(
         key="is_A_true",
         access=py_trees.common.Access.WRITE,
@@ -157,7 +53,7 @@ if __name__ == "__main__":
         state = tree.root.status.value
         print(f"Tree Result: {state}")
 
-        if state == "SUCCESS":
+        if state == "SUCCESS" or state == "FAILURE":
             break
         counter = counter + 1
         time.sleep(1)
