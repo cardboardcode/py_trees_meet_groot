@@ -3,7 +3,7 @@ from xml.dom.minidom import parse, Element
 import uuid
 import py_trees
 import inspect
-from .exceptions import UnknownNodeError
+from .exceptions import UnknownNodeError, BehaviourNotFound
 
 
 def attributes_to_dict(attributes):
@@ -304,8 +304,7 @@ def parse_BehaviourTree(
                     is_bh_notfound = False
                     break
             if is_bh_notfound:
-                print("Behavior not found: ", name)
-                ret.append(py_trees.behaviours.Success(name=name))
+                raise BehaviourNotFound(behavior_name=name, xml_element=e)
 
         elif str(e.nodeName) in dict_bh:
             ret.append(dict_bh[str(e.nodeName)])

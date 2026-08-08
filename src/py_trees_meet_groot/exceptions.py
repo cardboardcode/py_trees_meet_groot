@@ -44,8 +44,16 @@ class InvalidAttributeValueError(GrootXMLParserError):
     """Exception raised when an XML attribute has an invalid value."""
 
 
-class BehaviorLookupError(GrootXMLParserError):
-    """Exception raised when a behavior cannot be found by name during lookup."""
+class BehaviourNotFound(GrootXMLParserError):
+    """Exception raised when a behavior is not found during XML parsing.
+
+    Attributes:
+        behavior_name (str): The name of the behavior that was not found.
+    """
+
+    def __init__(self, behavior_name: str, xml_element, message: str = None):
+        self.behavior_name = behavior_name
+        super().__init__(behavior_name, xml_element, message)
 
 
 class SubtreeConfigurationError(GrootXMLParserError):
